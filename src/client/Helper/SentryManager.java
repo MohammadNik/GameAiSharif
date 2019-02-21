@@ -18,12 +18,13 @@ public class SentryManager implements HeroManager {
 
     @Override
     public void move(Hero currentHero) {
-        cu
+        if (moveToAttackPosition(currentHero)) ;
+        else if (moveToObjectiveZone(currentHero)) ;
     }
 
     @Override
     public void takeAction(Hero currentHero) {
-
+        if (attackEnemy(currentHero)) ;
     }
 
     /**********************************************************************************************************************/
@@ -98,7 +99,7 @@ public class SentryManager implements HeroManager {
     }
 
     /**********************************************************************************************************************/
-    // TODO: 2/21/2019 create attack enemy functionality
+    // attack an enemy hero
     public boolean attackEnemy(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
         if (isInAttackRange(sentry, enemyCell)) world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
@@ -106,9 +107,10 @@ public class SentryManager implements HeroManager {
         return true;
     }
 
-    /**********************************************************************************************************************/
     public boolean isInAttackRange(Hero sentry, Cell targetCell) {
         return world.manhattanDistance(sentry.getCurrentCell(), targetCell) <= 7;
     }
+
+    /**********************************************************************************************************************/
 
 }
