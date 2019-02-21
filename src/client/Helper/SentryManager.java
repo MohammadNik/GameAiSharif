@@ -98,7 +98,7 @@ public class SentryManager implements HeroManager {
         return true;
     }
 
-    /**********************************************************************************************************************/
+    /**************************s********************************************************************************************/
     // attack an enemy hero
     public boolean sentryAttack(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
