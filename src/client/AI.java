@@ -10,7 +10,7 @@ public class AI
 
     private Random random = new Random();
     private  int index = 0;
-    private HeroName[] heroConstants = {HeroName.GUARDIAN,HeroName.GUARDIAN,HeroName.HEALER,HeroName.SENTRY};
+    private HeroName[] heroConstants = {HeroName.GUARDIAN,HeroName.BLASTER,HeroName.HEALER,HeroName.SENTRY};
     private HealerManager healerManager;
     private GuardianManager guardianManager;
     private SentryManager sentryManager;
