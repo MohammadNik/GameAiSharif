@@ -51,9 +51,9 @@ public class HealerManager implements HeroManager {
     @Override
     public void takeAction(Hero currentHero) {
         // currentHero is healer one of the healer heroes
-        if (isAllHpsGoodToFull()) allHpsOkayAction(currentHero);
-        else if (isHeroHpMediumToGood(currentHero)) healForMyselfAction(currentHero);
-        else healAction(currentHero);
+//        if (isAllHpsGoodToFull()) allHpsOkayAction(currentHero);
+//        else if (isHeroHpMediumToGood(currentHero)) healForMyselfAction(currentHero);
+//        else healAction(currentHero);
 
     }
 
