@@ -18,7 +18,7 @@ public class SentryManager implements HeroManager {
 
     @Override
     public void move(Hero currentHero) {
-
+        cu
     }
 
     @Override
