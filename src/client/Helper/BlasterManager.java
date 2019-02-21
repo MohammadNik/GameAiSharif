@@ -19,7 +19,8 @@ public class BlasterManager implements HeroManager {
 
     @Override
     public void move(Hero currentHero) {
-        moveToObjectiveZone(currentHero);
+        //moveToObjectiveZone(currentHero);
+        entrenchment(currentHero);
 
     }
 
@@ -64,6 +65,12 @@ public class BlasterManager implements HeroManager {
         }
 
         return minWallDisCell;
+    }
+
+    //moves the blaster to the trench
+    private void entrenchment(Hero blaster){ // FIXME: 2/22/2019 find more appropriate trench cells
+        Cell trench = nearestWalltoOZ();
+        world.moveHero(blaster, Helper.nearestToCell(world,trench)); // FIXME: 2/22/2019 move to the bottom row of trech, not itself
     }
 
 }
