@@ -98,7 +98,7 @@ public class SentryManager implements HeroManager {
         return true;
     }
 
-    /**************************s********************************************************************************************/
+    /**********************************************************************************************************************/
     // attack an enemy hero
     public boolean sentryAttack(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
@@ -114,7 +114,9 @@ public class SentryManager implements HeroManager {
     /**********************************************************************************************************************/
     // TODO: 2/21/2019 cast ray spell
     public boolean sentryRay(Hero sentry) {
-
+        Cell enemyCell = getNearestEnemyHero(sentry);
+        if (isInAttackRange(sentry, enemyCell)) world.castAbility(sentry, AbilityName.SENTRY_RAY, enemyCell);
+        else return false;
         return true;
     }
 }
