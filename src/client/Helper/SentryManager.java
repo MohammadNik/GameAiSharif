@@ -24,7 +24,7 @@ public class SentryManager implements HeroManager {
 
     @Override
     public void takeAction(Hero currentHero) {
-        if (attackEnemy(currentHero)) ;
+        if (sentryAttack(currentHero)) ;
     }
 
     /**********************************************************************************************************************/
@@ -100,7 +100,7 @@ public class SentryManager implements HeroManager {
 
     /**********************************************************************************************************************/
     // attack an enemy hero
-    public boolean attackEnemy(Hero sentry) {
+    public boolean sentryAttack(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
         if (isInAttackRange(sentry, enemyCell)) world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
         else return false;
@@ -112,5 +112,9 @@ public class SentryManager implements HeroManager {
     }
 
     /**********************************************************************************************************************/
+    // TODO: 2/21/2019 cast ray spell
+    public boolean sentryRay(Hero sentry) {
 
+        return true;
+    }
 }
