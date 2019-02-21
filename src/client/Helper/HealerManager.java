@@ -44,7 +44,7 @@ public class HealerManager implements HeroManager {
     }
 
     @Override
-    public void move() {
+    public void move(Hero currentHero) {
 
     }
 
