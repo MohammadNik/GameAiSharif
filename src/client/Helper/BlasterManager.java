@@ -43,7 +43,7 @@ public class BlasterManager implements HeroManager {
         }
     }
 
-    private static int distanceCalculator(Cell cell1, Cell cell2){
+    private int distanceCalculator(Cell cell1, Cell cell2){
         return Math.abs(cell1.getColumn() - cell2.getColumn()) + Math.abs(cell1.getRow()-cell2.getRow());
 
     }
