@@ -1,7 +1,6 @@
 package client;
 
-import client.Helper.HealerManager;
-import client.Helper.Helper;
+import client.Helper.*;
 import client.model.*;
 
 import java.util.Random;
@@ -13,11 +12,22 @@ public class AI
     private  int index = 0;
     private HeroName[] heroConstants = {HeroName.GUARDIAN,HeroName.GUARDIAN,HeroName.HEALER,HeroName.SENTRY};
     private HealerManager healerManager;
+    private GuardianManager guardianManager;
+    private SentryManager sentryManager;
+    private BlasterManager blasterManager;
 
     public void preProcess(World world)
     {
         System.out.println("pre process started");
         healerManager = new HealerManager(world);
+        guardianManager = new GuardianManager(world);
+        sentryManager = new SentryManager(world);
+        blasterManager = new BlasterManager(world);
+
+        healerManager.preProcess();
+        guardianManager.preProcess();
+        sentryManager.preProcess();
+        blasterManager.preProcess();
     }
 
     public void pickTurn(World world)
@@ -34,10 +44,20 @@ public class AI
 
         for (Hero hero : heroes)
         {
-            Cell current = hero.getCurrentCell();
-            for (Direction dir : world.getPathMoveDirections(current,Helper.nearestCellFromOZ(world,current)))
-                world.moveHero(hero,dir);
-
+           switch (hero.getName()){
+               case HEALER:
+                   healerManager.move(hero);
+                   break;
+               case SENTRY:
+                   sentryManager.move(hero);
+                   break;
+               case GUARDIAN:
+                   guardianManager.move(hero);
+                   break;
+               case BLASTER:
+                   blasterManager.move(hero);
+                   break;
+           }
         }
     }
 
@@ -46,18 +66,23 @@ public class AI
     public void actionTurn(World world) {
         System.out.println("action started");
         Hero[] heroes = world.getMyHeroes();
-        Map map = world.getMap();
         for (Hero hero : heroes) {
 
-            if (hero.getName() == HeroName.HEALER)
-                healerManager.takeAction(hero);
-            else {
-                int row = random.nextInt(map.getRowNum());
-                int column = random.nextInt(map.getColumnNum());
-
-                world.castAbility(hero, hero.getAbilities()[random.nextInt(3)], row, column);
-
+            switch (hero.getName()){
+                case HEALER:
+                    healerManager.takeAction(hero);
+                    break;
+                case SENTRY:
+                    sentryManager.takeAction(hero);
+                    break;
+                case GUARDIAN:
+                    guardianManager.takeAction(hero);
+                    break;
+                case BLASTER:
+                    blasterManager.takeAction(hero);
+                    break;
             }
+
         }
     }
 
