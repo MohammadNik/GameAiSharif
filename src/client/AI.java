@@ -1,24 +1,23 @@
 package client;
 
-import client.Helper.BlasterManager;
-import client.Helper.GuardianManager;
-import client.Helper.HealerManager;
-import client.Helper.SentryManager;
-import client.model.Hero;
-import client.model.HeroName;
-import client.model.World;
+import client.Helper.*;
+import client.model.*;
 
-public class AI {
+import java.util.Random;
 
-    //    private Random random = new Random();
-    private int index = 0;
-    private HeroName[] heroConstants = {HeroName.GUARDIAN, HeroName.HEALER, HeroName.BLASTER, HeroName.SENTRY};
-    private GuardianManager guardianManager;
+public class AI
+{
+
+    private Random random = new Random();
+    private  int index = 0;
+    private HeroName[] heroConstants = {HeroName.GUARDIAN,HeroName.BLASTER,HeroName.HEALER,HeroName.SENTRY};
     private HealerManager healerManager;
-    private BlasterManager blasterManager;
+    private GuardianManager guardianManager;
     private SentryManager sentryManager;
+    private BlasterManager blasterManager;
 
-    public void preProcess(World world) {
+    public void preProcess(World world)
+    {
         System.out.println("pre process started");
         healerManager = new HealerManager(world);
         guardianManager = new GuardianManager(world);
@@ -31,53 +30,59 @@ public class AI {
         blasterManager.preProcess();
     }
 
-    public void pickTurn(World world) {
+    public void pickTurn(World world)
+    {
         System.out.println("pick started");
 
         world.pickHero(heroConstants[index++]);
     }
 
-    public void moveTurn(World world) {
+    public void moveTurn(World world)
+    {
         System.out.println("move started");
         Hero[] heroes = world.getMyHeroes();
 
-        for (Hero hero : heroes) {
-            switch (hero.getName()) {
-                case GUARDIAN:
-                    guardianManager.move(hero);
-                    break;
-                case HEALER:
-                    healerManager.move(hero);
-                    break;
-                case BLASTER:
-                    blasterManager.move(hero);
-                    break;
-                case SENTRY:
-                    sentryManager.move(hero);
-                    break;
-            }
+        for (Hero hero : heroes)
+        {
+           switch (hero.getName()){
+               case HEALER:
+                   healerManager.move(hero);
+                   break;
+               case SENTRY:
+                   sentryManager.move(hero);
+                   break;
+               case GUARDIAN:
+                   guardianManager.move(hero);
+                   break;
+               case BLASTER:
+                   blasterManager.move(hero);
+                   break;
+           }
         }
     }
+
+
 
     public void actionTurn(World world) {
         System.out.println("action started");
         Hero[] heroes = world.getMyHeroes();
-
         for (Hero hero : heroes) {
-            switch (hero.getName()) {
-                case GUARDIAN:
-                    guardianManager.takeAction(hero);
-                    break;
+
+            switch (hero.getName()){
                 case HEALER:
                     healerManager.takeAction(hero);
-                    break;
-                case BLASTER:
-                    blasterManager.takeAction(hero);
                     break;
                 case SENTRY:
                     sentryManager.takeAction(hero);
                     break;
+                case GUARDIAN:
+                    guardianManager.takeAction(hero);
+                    break;
+                case BLASTER:
+                    blasterManager.takeAction(hero);
+                    break;
             }
+
         }
     }
 
