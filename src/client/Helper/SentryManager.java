@@ -1,7 +1,5 @@
 package client.Helper;
 
-import client.Helper.Helper;
-import client.Helper.HeroManager;
 import client.model.*;
 
 import java.util.ArrayList;
