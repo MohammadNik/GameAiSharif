@@ -15,8 +15,8 @@ private HeroName[] heroConstants = {HeroName.SENTRY,SENTRY.SENTRY,HeroName.SENTR
 
 faghat havaseton bashe vaghti khastid commit konid tike Ai.java ro bardarid ke taghirateton dakhel Ai.java roye project Eemal nashe
 
-
-
+# توجه توجه!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+## فقط تغییراتتون داخل منیجر هیروتون و کلاس های داخل پوشه خودتون رو کامیت کنید
 
 
 
