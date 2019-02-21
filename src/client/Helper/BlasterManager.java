@@ -57,7 +57,7 @@ public class BlasterManager implements HeroManager {
             for (Cell cell : cells){
                 if(cell.isWall()){
                     if(distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell)) <= minWallDis)
-                        minWallDis = distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell);
+                        minWallDis = distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell));
                         minWallDisCell = cell;
                 }
             }
