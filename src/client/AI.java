@@ -12,7 +12,7 @@ public class AI
 {
 
     private  int index = 0;
-    private HeroName[] heroConstants = {HeroName.BLASTER,HeroName.HEALER,HeroName.GUARDIAN,HeroName.SENTRY};
+    private HeroName[] heroConstants = {HeroName.SENTRY,HeroName.SENTRY,HeroName.SENTRY,HeroName.SENTRY};
     private HealerManager healerManager;
     private GuardianManager guardianManager;
     private SentryManager sentryManager;
@@ -21,15 +21,15 @@ public class AI
     public void preProcess(World world)
     {
         System.out.println("pre process started");
-        healerManager = new HealerManager(world);
-        guardianManager = new GuardianManager(world);
-        sentryManager = new SentryManager(world);
-        blasterManager = new BlasterManager(world);
+        healerManager = new HealerManager();
+        guardianManager = new GuardianManager();
+        sentryManager = new SentryManager();
+        blasterManager = new BlasterManager();
 
-        healerManager.preProcess();
-        guardianManager.preProcess();
-        sentryManager.preProcess();
-        blasterManager.preProcess();
+        healerManager.preProcess(world);
+        guardianManager.preProcess(world);
+        sentryManager.preProcess(world);
+        blasterManager.preProcess(world);
     }
 
     public void pickTurn(World world) {
@@ -46,16 +46,16 @@ public class AI
         {
            switch (hero.getName()){
                case HEALER:
-                   healerManager.move(hero);
+                   healerManager.move(world,hero);
                    break;
                case SENTRY:
-                   sentryManager.move(hero);
+                   sentryManager.move(world,hero);
                    break;
                case GUARDIAN:
-                   guardianManager.move(hero);
+                   guardianManager.move(world,hero);
                    break;
                case BLASTER:
-                   blasterManager.move(hero);
+                   blasterManager.move(world,hero);
                    break;
            }
         }
@@ -70,16 +70,16 @@ public class AI
 
             switch (hero.getName()){
                 case HEALER:
-                    healerManager.takeAction(hero);
+                    healerManager.takeAction(world,hero);
                     break;
                 case SENTRY:
-                    sentryManager.takeAction(hero);
+                    sentryManager.takeAction(world,hero);
                     break;
                 case GUARDIAN:
-                    guardianManager.takeAction(hero);
+                    guardianManager.takeAction(world,hero);
                     break;
                 case BLASTER:
-                    blasterManager.takeAction(hero);
+                    blasterManager.takeAction(world,hero);
                     break;
             }
 

@@ -1,12 +1,14 @@
 package client.Helper;
 
 import client.model.Hero;
+import client.model.World;
 
 public interface HeroManager {
 
-    public void preProcess();
+    public void preProcess(World world);
 
-    public void move(Hero currentHero);
+    public void move(World world, Hero currentHero);
 
-    public void takeAction(Hero currentHero);
+    public void takeAction(World world, Hero currentHero);
+
 }

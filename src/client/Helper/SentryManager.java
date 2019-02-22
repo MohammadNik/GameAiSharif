@@ -7,17 +7,16 @@ import java.util.ArrayList;
 public class SentryManager implements HeroManager {
     private World world;
 
-    public SentryManager(World world) {
-        this.world = world;
-    }
 
     @Override
-    public void preProcess() {
+    public void preProcess(World world) {
         // TODO: 2/22/2019 what to put here?!
     }
 
     @Override
-    public void move(Hero currentHero) {
+    public void move(World world,Hero currentHero) {
+        this.world = world; // WARNING: DON'T CHANGE THIS !!
+
         if (moveToAttackPosition(currentHero))
             System.out.println("sentry moved to attack position"); // first attempt to move to attack position
         else if (moveToObjectiveZone(currentHero))
@@ -25,7 +24,9 @@ public class SentryManager implements HeroManager {
     }
 
     @Override
-    public void takeAction(Hero currentHero) {
+    public void takeAction(World world,Hero currentHero) {
+        this.world = world; // WARNING: DON'T CHANGE THIS !!
+
         if (sentryCastRay(currentHero))
             System.out.println("sentry casted ray"); // first attempt to cast ability "ray" to an enemy
         else if (sentryAttack(currentHero))
