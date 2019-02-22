@@ -4,143 +4,145 @@ import client.model.*;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
-/**
- *  Strategy
- *   1- if all the heroes hp where higher than a value(dependant to each hero) healer use it's ability to attack if anyone was near to it
- *   2- else start to heal
- *      2.1- if first lowest hero was itself(the healer) then it heal itself and go away if any enemy was near
- *      2.2- else go to nearest cell that can heal first lowest hero heal
- *          2.2.1- if heal was in LOW_STATE use blink
- *          2.2.1- else move to hero normally
- *   note: blink only used for healing
- *   */
-
+/** Names:
+ *      HP-Name-Convention:
+ *          1- Z:Zero:{@link #HP_Z}
+ *          2- L:Low:{@link #HP_L}
+ *          3- M:Medium:{@link #HP_M}
+ *          4- H:High:{@link #HP_H}
+ *          5- F:Full:{@link #HP_F}
+ *
+ *      Hero-Convention:
+ *          1- MY:Healer Hero
+ *          2- OT:Others Hero*/
 public class HealerManager implements HeroManager {
-    public static final int HEALTH = 200;
-    public static final int HEAL_POWER = 30;
-    public static final int DAMAGE_POWER = 25;
-    public static final int MAX_RANGE = 4;
 
+    public static final double HP_Z = 0;
+    public static final double HP_L = 45.0/100;
+    public static final double HP_M = 75.0/100;
+    public static final double HP_H = 90.0/100;
+    public static final double HP_F = 100;
 
-
-    public static final double HP_GOOD_PERCENT = 90.0/100;
-    public static final double HP_MEDIUM_PERCENT = 75.0/100;
-    public static final double HP_LOW_PERCENT = 45.0/100;
-
-    public static final int ENEMY_MAX_RANGE = 4;
-
+    public static final int RANGE = 4;
 
     private World world;
+    private Hero healerHero;
+
 
     @Override
     public void preProcess(World world) {
-        this.world = world;
+        this.world = world; // WARNING: DON'T CHANGE THIS !!
+
+
     }
 
     @Override
-    public void move(World world,Hero currentHero) {
-        this.world = world;
-    }
+    public void move(World world,Hero healerHero) {
+        this.world = world; // WARNING: DON'T CHANGE THIS !!
+        this.healerHero = healerHero;
 
-    @Override
-    public void takeAction(World world,Hero currentHero) {
-        this.world = world;
-         // currentHero is healer one of the healer heroes
-        if (isAllHpsGoodToFull()) allHpsOkayAction(currentHero);
-        else if (isHeroHpMediumToGood(currentHero)) healForMyselfAction(currentHero);
-        else healAction(currentHero);
+        if (isAllHpInRange(HP_H,HP_F)){
 
-    }
-
-    private void allHpsOkayAction(Hero healerHero){
-        // TODO: 2019-02-21 TAKE ACTION TO ATTACK ENEMY IF ANYONE WAS IN A RANGE
-        if (getEnemyCellInRange() != null){
-            //  damage enemy
-            world.castAbility(healerHero,AbilityName.HEALER_ATTACK,getEnemyCellInRange());
+            if (isAnyEnemyInRange() == null) moveToObjectiveZone();
         }else {
-            // move to objective zone
-            moveToObjectiveZone(healerHero);
-        }
-    }
 
-    public void healForMyselfAction(Hero healerHero){
-        // TODO: 2019-02-21 move to nearest cell that can heal low hp hero and heal itself(mystic the healer)
+            if (isLowestHpForMY(healerHero.getCurrentCell())) moveToNearestWall();
+            else moveToLowestHpHero(getCellOfLowestHpHero());
 
-        healThisHero(healerHero,healerHero);
-        if (getEnemyCellInRange() != null){
-            // move to nearest low hp hero
-
-        }else {
-            // move to objective zone
-           moveToObjectiveZone(healerHero);
         }
 
     }
 
-    private void healAction(Hero healerHero){
-        Hero[] heroes = getHeroesByHealDescExceptHealer();
-        // healing others
-        // TODO: 2019-02-20 Move to a cell which can heal the hero
-        Hero targetHero = heroes[0];
-        healThisHero(healerHero,targetHero);
+    @Override
+    public void takeAction(World world,Hero healerHero) {
+        this.world = world; // WARNING: DON'T CHANGE THIS !!
+        this.healerHero = healerHero;
+
+        if (isAllHpInRange(HP_H,HP_F)){
+
+            if (isAnyEnemyInRange() != null) takeActionDamageEnemy();
+
+        }else {
+
+            if (isLowestHpForMY(healerHero.getCurrentCell())) takeActionHealMY();
+            else takeActionHealOT(getLowestHpHero());
+
+        }
     }
 
-    private void moveToObjectiveZone(Hero healerHero){
-        for (Direction dir :
-                world.getPathMoveDirections(healerHero.getCurrentCell(),Helper.nearestCellFromOZ(world,healerHero.getCurrentCell()))){
+    private void takeActionHealMY(){
+        world.castAbility(healerHero,AbilityName.HEALER_HEAL,healerHero.getCurrentCell());
+    }
+
+    private void takeActionHealOT(Hero OTHero){
+        world.castAbility(healerHero,AbilityName.HEALER_HEAL,OTHero.getCurrentCell());
+    }
+
+    private void takeActionDamageEnemy(){
+        world.castAbility(healerHero, AbilityName.HEALER_ATTACK,isAnyEnemyInRange().getCurrentCell());
+    }
+
+
+
+    private void moveToLowestHpHero(Cell targetCell){
+        // TODO: 2019-02-23 complete me
+    }
+    // ~~
+    private void moveToNearestWall(){
+        // TODO: 2019-02-23 complete me
+
+    }
+    // ~~
+    private void moveToObjectiveZone(){
+        for (Direction dir: world.getPathMoveDirections(healerHero.getCurrentCell(),Helper.nearestCellFromOZ(world,healerHero.getCurrentCell())))
             world.moveHero(healerHero,dir);
-        }
     }
 
-    private void healThisHero(Hero healerHero, Hero hero){
-        world.castAbility(healerHero, AbilityName.HEALER_HEAL,hero.getCurrentCell());
+
+    private boolean isLowestHpForMY(Cell MYCell){
+        return getCellOfLowestHpHero() == MYCell;
     }
 
-    public boolean isAllHpsGoodToFull(){
+    private Cell getCellOfLowestHpHero(){
+        return getLowestHpHero().getCurrentCell();
+    }
+
+    private Hero getLowestHpHero(){
+        return Arrays.stream(world.getMyHeroes()).sorted(Comparator.comparing(Hero::getCurrentHP)).findFirst().get();
+    }
+
+    // return nearest Enemy
+    private Hero isAnyEnemyInRange(){
+        List<Cell> cellsInRange = Helper.cellInRangeOfSpot(world,healerHero.getCurrentCell(),RANGE);
+
+        Cell cellOfOpp = cellsInRange.stream()
+                .filter(cell -> world.getOppHero(cell) != null && world.getMyHero(cell) == null)
+                .findFirst().orElse(null);
+
+        return world.getOppHero(cellOfOpp);
+    }
+
+    private boolean isAllHpInRange(double startOfRange, double endOfRange){
         for (Hero hero : world.getMyHeroes()){
-            if (!isHeroHpMediumToGood(hero)) return false;
+            if (!isHpInRange(hero,startOfRange,endOfRange)) return false;
         }
 
         return true;
     }
-    // ~~
-    public boolean isHeroHpGoodToFull(Hero hero){
-        return hero.getCurrentHP() >= hero.getMaxHP()*HP_GOOD_PERCENT;
-    }
-    // ~~
-    public boolean isAllHpsMediumToGood(){
-        for (Hero hero : world.getMyHeroes()){
-            if (!isHeroHpMediumToGood(hero)) return false;
-        }
 
-            return true;
+    private boolean isHpInRange(Hero hero, double startOfRange, double endOfRange){
+        return HCH(hero) >= HMH(hero)*startOfRange && HCH(hero) <= HMH(hero)*endOfRange;
     }
     // ~~
-    public boolean isHeroHpMediumToGood(Hero hero){
-        return hero.getCurrentHP() >= (hero.getMaxHP()*HP_MEDIUM_PERCENT) && hero.getCurrentHP() < (hero.getMaxHP()*HP_GOOD_PERCENT);
+    // hero max hp
+    private int HMH(Hero hero){
+        return hero.getMaxHP();
     }
     // ~~
-    public boolean isHeroHpLowToMedium(Hero hero){
-        return hero.getCurrentHP() >= hero.getMaxHP()* HP_LOW_PERCENT && hero.getCurrentHP() < hero.getMaxHP()*HP_MEDIUM_PERCENT;
+    // hero current hp
+    private int HCH(Hero hero){
+        return hero.getCurrentHP();
     }
-    // ~~
-    public Cell getEnemyCellInRange(){
-        // TODO: 2019-02-21 complete this method later
-        return null;
-    }
-
-    public Hero[] getHeroesByHealDescExceptHealer(){
-        return Arrays.stream(getHeroesByHealDesc()).filter(hero -> hero.getName() != HeroName.HEALER).toArray(size -> new Hero[3]);
-    }
-
-    public Hero[] getHeroesByHealDesc(){
-        return Arrays.stream(world.getMyHeroes())
-                .sorted(Comparator.comparing(Hero::getCurrentHP).reversed())
-                .toArray(size-> new Hero[4]);
-    }
-
-//    public Hero findHealer(){
-//        return Arrays.stream(world.getMyHeroes()).filter(hero -> hero.getName() == HeroName.HEALER).findFirst().orElse(null);
-//    }
 }
