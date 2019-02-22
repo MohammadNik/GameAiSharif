@@ -14,7 +14,7 @@ public class SentryManager implements HeroManager {
     }
 
     @Override
-    public void move(World world,Hero currentHero) {
+    public void move(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
 
         if (moveToAttackPosition(currentHero))
@@ -24,13 +24,15 @@ public class SentryManager implements HeroManager {
     }
 
     @Override
-    public void takeAction(World world,Hero currentHero) {
+    public void takeAction(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
 
         if (sentryCastRay(currentHero))
             System.out.println("sentry casted ray"); // first attempt to cast ability "ray" to an enemy
         else if (sentryAttack(currentHero))
             System.out.println("sentry attacked normally"); // then if casting failed with any reason attack them normally
+        else if (sentryDodge(currentHero))
+            System.out.println("sentry dodged"); // if attacking failed with any reason then dodge
     }
 
     /*************************************move sentry to objective zone "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
@@ -88,7 +90,7 @@ public class SentryManager implements HeroManager {
         // check which cells are within range of 7
         for (Cell[] cells : world.getMap().getCells())
             for (Cell cell : cells) {
-                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) <= 7)
+                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7)
                     attackCells.add(cell); // FIXME: 2/21/2019 no name found to create a check method :(
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
         if (attackCells.isEmpty()) return null;
@@ -138,6 +140,15 @@ public class SentryManager implements HeroManager {
             world.castAbility(sentry, AbilityName.SENTRY_RAY, enemyCell);
             return true;
         } else return false;
+    }
+
+    /******************************offensive/defensive sentry ability 'dodge' "method"*********************************/ // TODO: 2/21/2019 functionality improvement is needed
+    // final offensive/defensive ability method "dodge"
+    private boolean sentryDodge(Hero sentry) {
+        Cell attackCell = getNearestAttackCell(sentry);
+        if (attackCell == null) return false;
+        world.castAbility(sentry, AbilityName.SENTRY_DODGE, attackCell);
+        return true;
     }
 
     /**********************************************misc "methods*******************************************************/
