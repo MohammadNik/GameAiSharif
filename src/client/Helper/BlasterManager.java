@@ -70,7 +70,7 @@ public class BlasterManager implements HeroManager {
     //moves the blaster to the trench
     private void entrenchment(Hero blaster){ // FIXME: 2/22/2019 find more appropriate trench cells
         Cell trench = nearestWalltoOZ();
-        world.moveHero(blaster, Helper.nearestToCell(world,trench)); // FIXME: 2/22/2019 move to the bottom row of trech, not itself
+        world.moveHero(blaster, Helper.nearestToCell(world,trench)); // FIXME: 2/22/2019 move to the bottom row of trench, not itself
     }
 
 }
