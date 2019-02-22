@@ -20,7 +20,8 @@ public class BlasterManager implements HeroManager {
     @Override
     public void move(Hero currentHero) {
         //moveToObjectiveZone(currentHero);
-        entrenchment(currentHero);
+
+            entrenchment(currentHero);
 
     }
 

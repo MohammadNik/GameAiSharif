@@ -23,6 +23,7 @@ public class HealerManager implements HeroManager {
     public static final int MAX_RANGE = 4;
 
 
+
     public static final double HP_GOOD_PERCENT = 90.0/100;
     public static final double HP_MEDIUM_PERCENT = 75.0/100;
     public static final double HP_LOW_PERCENT = 45.0/100;
@@ -32,28 +33,23 @@ public class HealerManager implements HeroManager {
 
     private World world;
 
-
-    public HealerManager(World world) {
+    @Override
+    public void preProcess(World world) {
         this.world = world;
-
     }
 
     @Override
-    public void preProcess() {
-
+    public void move(World world,Hero currentHero) {
+        this.world = world;
     }
 
     @Override
-    public void move(Hero currentHero) {
-
-    }
-
-    @Override
-    public void takeAction(Hero currentHero) {
-        // currentHero is healer one of the healer heroes
-//        if (isAllHpsGoodToFull()) allHpsOkayAction(currentHero);
-//        else if (isHeroHpMediumToGood(currentHero)) healForMyselfAction(currentHero);
-//        else healAction(currentHero);
+    public void takeAction(World world,Hero currentHero) {
+        this.world = world;
+         // currentHero is healer one of the healer heroes
+        if (isAllHpsGoodToFull()) allHpsOkayAction(currentHero);
+        else if (isHeroHpMediumToGood(currentHero)) healForMyselfAction(currentHero);
+        else healAction(currentHero);
 
     }
 
