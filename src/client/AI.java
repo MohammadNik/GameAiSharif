@@ -1,16 +1,18 @@
 package client;
 
-import client.Helper.*;
-import client.model.*;
-
-import java.util.Random;
+import client.Helper.BlasterManager;
+import client.Helper.GuardianManager;
+import client.Helper.HealerManager;
+import client.Helper.SentryManager;
+import client.model.Hero;
+import client.model.HeroName;
+import client.model.World;
 
 public class AI
 {
 
-    private Random random = new Random();
     private  int index = 0;
-    private HeroName[] heroConstants = {HeroName.GUARDIAN,HeroName.BLASTER,HeroName.HEALER,HeroName.SENTRY};
+    private HeroName[] heroConstants = {HeroName.BLASTER,HeroName.HEALER,HeroName.GUARDIAN,HeroName.SENTRY};
     private HealerManager healerManager;
     private GuardianManager guardianManager;
     private SentryManager sentryManager;
@@ -30,15 +32,13 @@ public class AI
         blasterManager.preProcess();
     }
 
-    public void pickTurn(World world)
-    {
+    public void pickTurn(World world) {
         System.out.println("pick started");
 
         world.pickHero(heroConstants[index++]);
     }
 
-    public void moveTurn(World world)
-    {
+    public void moveTurn(World world) {
         System.out.println("move started");
         Hero[] heroes = world.getMyHeroes();
 

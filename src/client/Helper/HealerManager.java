@@ -23,6 +23,7 @@ public class HealerManager implements HeroManager {
     public static final int MAX_RANGE = 4;
 
 
+
     public static final double HP_GOOD_PERCENT = 90.0/100;
     public static final double HP_MEDIUM_PERCENT = 75.0/100;
     public static final double HP_LOW_PERCENT = 45.0/100;
