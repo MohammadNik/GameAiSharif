@@ -20,9 +20,8 @@ public class BlasterManager implements HeroManager {
     @Override
     public void move(Hero currentHero) {
         //moveToObjectiveZone(currentHero);
-        try {
+
             entrenchment(currentHero);
-        } catch (NullPointerException e) {}
 
     }
 
