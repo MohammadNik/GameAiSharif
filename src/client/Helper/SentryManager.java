@@ -13,22 +13,26 @@ public class SentryManager implements HeroManager {
 
     @Override
     public void preProcess() {
-        // TODO: 2/21/2019 What to put here?1 
+        // TODO: 2/22/2019 what to put here?!
     }
 
     @Override
     public void move(Hero currentHero) {
-        if (moveToAttackPosition(currentHero)) ;
-        else if (moveToObjectiveZone(currentHero)) ;
+        if (moveToAttackPosition(currentHero))
+            System.out.println("sentry moved to attack position"); // first attempt to move to attack position
+        else if (moveToObjectiveZone(currentHero))
+            System.out.println("sentry moved to objective zone"); // then if action above failed with any reason move to objective zone
     }
 
     @Override
     public void takeAction(Hero currentHero) {
-        if (sentryCastRay(currentHero)) ;
-        else if (sentryAttack(currentHero)) ;
+        if (sentryCastRay(currentHero))
+            System.out.println("sentry casted ray"); // first attempt to cast ability "ray" to an enemy
+        else if (sentryAttack(currentHero))
+            System.out.println("sentry attacked normally"); // then if casting failed with any reason attack them normally
     }
 
-    /*************************************move sentry to objective zone "methods"**************************************/ // FIXME: 2/21/2019 functionality improvement is needed
+    /*************************************move sentry to objective zone "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final move to objective zone method
     private boolean moveToObjectiveZone(Hero sentry) {
         // get nearest cell of hero from objective zone
@@ -44,7 +48,7 @@ public class SentryManager implements HeroManager {
         return true;
     }
 
-    /************************************move sentry to attack position "methods"**************************************/ // FIXME: 2/21/2019 functionality improvement is needed
+    /************************************move sentry to attack position "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // get all visible enemy heroes
     private ArrayList<Cell> getVisibleEnemyHeroes() {
         ArrayList<Cell> enemyCells = new ArrayList<>();
@@ -111,7 +115,7 @@ public class SentryManager implements HeroManager {
         return true;
     }
 
-    /***************************************normal attack ability "methods"********************************************/ // FIXME: 2/21/2019 functionality improvement is needed
+    /***************************************normal attack ability "methods"********************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final normal attack method
     private boolean sentryAttack(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
@@ -121,14 +125,18 @@ public class SentryManager implements HeroManager {
         return true; // if target is in range
     }
 
-    /*******************************special sentry offensive ability 'RAY' "method"s***********************************/ // FIXME: 2/21/2019 functionality improvement is needed
+    /*******************************special sentry offensive ability 'RAY' "method"s***********************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final special offensive ability method "ray"
+    // FIXME: 2/22/2019
     private boolean sentryCastRay(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
-        // check if target is in attack range then poof 'em all :P
-        if (isInAttackRange(sentry, enemyCell)) world.castAbility(sentry, AbilityName.SENTRY_RAY, enemyCell);
-        else return false; // if target is not in range
-        return true; // if target is range
+        if (enemyCell == null) return false;
+        Ability sentryRay = sentry.getAbility(AbilityName.SENTRY_RAY);
+        // check if ray ability is not on cooldown then poof 'em all :P
+        if (isReady(sentryRay)) {
+            world.castAbility(sentry, AbilityName.SENTRY_RAY, enemyCell);
+            return true;
+        } else return false;
     }
 
     /**********************************************misc "methods*******************************************************/
@@ -143,6 +151,11 @@ public class SentryManager implements HeroManager {
     private boolean isInAttackRange(Hero sentry, Cell targetCell) {
         return world.manhattanDistance(sentry.getCurrentCell(), targetCell) <= 7;
     }
+
+    // check an ability remaining cooldown then return false if it's ready or true if it's not ready
+    private boolean isReady(Ability ability) {
+        return ability.getRemCooldown() == 0;
+    }
 }
 
-// TODO: 2/21/2019 make null execptions handeled with try-catch statement(or throws?!) 
+// TODO: 2/21/2019 make null exceptions handled with try-catch statement(or throws?!)
