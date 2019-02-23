@@ -233,7 +233,7 @@ public class BlasterManager implements HeroManager {
         
         if(blaster.getAbility(AbilityName.BLASTER_BOMB).isReady()) {
             if(world.getAP() >= 25)
-                if(Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4)
+                if(Helper.distanceCalculator(heroCell, blaster.getCurrentCell()) <= 4)
                     world.castAbility(blaster, AbilityName.BLASTER_BOMB, heroCell);
             return true; 
         }
