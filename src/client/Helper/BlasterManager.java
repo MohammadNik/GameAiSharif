@@ -43,18 +43,23 @@ public class BlasterManager implements HeroManager {
             case 4:
                 beneficialAttack(beneficialTarget());
                 break;
-            /*case 6:
-                bomb();
+            case 6:
+                bomb(beneficialTarget());
+                if(!bomb(beneficialTarget()))
+                    beneficialAttack(beneficialTarget());
                 break;
             case 8:
-                bomb();
-                break;*/
+                bomb(beneficialTarget());
+                if(!bomb(beneficialTarget()))
+                    beneficialAttack(beneficialTarget());
+                break;
             default:
                 break;
 
         }
 
         /***************************************DODGE*******************************************/
+        // TODO: 2/24/2019 if normal attack or beneficial attack is false, doge! 
 
     }
 
@@ -121,9 +126,15 @@ public class BlasterManager implements HeroManager {
     //////////////////////////////////////////////////BENEFICIAL////////////////////////////////////////////////////////
     //attacking if the opponent heroes are in our ideal position
     //Parameter "heroCell" is beneficialTarget()
-    public void beneficialAttack(Cell heroCell){
+    public boolean beneficialAttack(Cell heroCell){
 
-        world.castAbility(world.getOppHero(heroCell), AbilityName.BLASTER_ATTACK, heroCell);
+        if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
+            if(world.getAP() >= 15)
+                world.castAbility(blaster, AbilityName.BLASTER_ATTACK, heroCell);
+            return true;
+        }
+        else
+            return false;
     }
 
     public Cell[] enemiesNexttoEachOther(){
@@ -217,8 +228,16 @@ public class BlasterManager implements HeroManager {
 
 
     //Bombing
-    public void bomb(Cell[] heroCell){
-
+    //heroCell is beneficialTarget()
+    public boolean bomb(Cell heroCell){
+        
+        if(blaster.getAbility(AbilityName.BLASTER_BOMB).isReady()) {
+            if(world.getAP() >= 25)
+                world.castAbility(blaster, AbilityName.BLASTER_BOMB, heroCell);
+            return true; 
+        }
+        else
+            return false;
     }
 
 }
