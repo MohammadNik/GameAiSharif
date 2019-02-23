@@ -12,6 +12,7 @@ public class MapManager {
 
     static int radius = 2;
 
+    // TODO: 2019-02-23 fix this.
     // return the best cell for hiding, takes in makeAttemptHideTable()
     public static Cell findHidingCell(World world, Cell myHeroCell, Cell enemyCell) {
         // TODO: 2019-02-20 Can you use remaining phasesCount to provide a more efficient solution?
@@ -63,7 +64,7 @@ public class MapManager {
             {
                 if(world.getMap().isInMap(i, j))
                 {
-                    table[j][i] = world.getMap().getCell(j, i);
+                    table[i - curCellY + radius][j - curCellX + radius] = world.getMap().getCell(i, j);
                 }
                 else
                 {
@@ -75,6 +76,7 @@ public class MapManager {
         return table;
     }
 
+    // TODO: 2019-02-23 fix this.
     public static Cell[] findCellsOnLine(Cell from, Cell to, World world){
         int diff;
         Cell[] cells;
