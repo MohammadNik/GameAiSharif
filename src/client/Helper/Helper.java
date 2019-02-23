@@ -53,11 +53,10 @@ public class Helper {
         return direction;
     }
 
-    private static int distanceCalculator(Cell cell1, Cell cell2){
+    public static int distanceCalculator(Cell cell1, Cell cell2){
         return Math.abs(cell1.getColumn() - cell2.getColumn()) + Math.abs(cell1.getRow()-cell2.getRow());
 
     }
-
 
     // return nearest cell from objective zone to current cell
     public static Cell nearestCellFromOZ(World world,Cell cell){
@@ -95,5 +94,18 @@ public class Helper {
                 .map(world::getOppHero)
                 .collect(Collectors.toList());
     }
+
+    // return nearest Enemy
+    public static List<Hero> getAllyInRange(World world,Hero hero, int RANGE){
+
+        return cellInRangeOfSpot(world,hero.getCurrentCell(),RANGE)
+                .stream()
+                .filter( cell -> world.getMyHero(cell) != null)
+                .filter( cell -> world.getOppHero(cell) == null)
+                .map(world::getOppHero)
+                .collect(Collectors.toList());
+    }
+
+
 
 }
