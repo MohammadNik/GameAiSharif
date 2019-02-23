@@ -2,11 +2,13 @@ package client.Helper;
 
 import client.model.Cell;
 import client.model.Direction;
+import client.model.Hero;
 import client.model.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Helper {
 
@@ -60,11 +62,12 @@ public class Helper {
     // return nearest cell from objective zone to current cell
     public static Cell nearestCellFromOZ(World world,Cell cell){
        return Arrays.stream(world.getMap().getObjectiveZone())
+               .filter(cell1 -> world.getMyHero(cell1) == null)
                 .reduce( (result, eachCell) -> {
                     int distanceFromResult = Math.abs(cell.getColumn()-result.getColumn()) + Math.abs(cell.getRow()-result.getRow());
                     int distanceFromEachCell = Math.abs(cell.getColumn()-eachCell.getColumn()) + Math.abs(cell.getRow()-eachCell.getRow());
 
-                    return (distanceFromEachCell - distanceFromResult < 0 ) ? eachCell : result;
+                    return (distanceFromEachCell - distanceFromResult < 0) ? eachCell : result;
                 } ).orElse(cell);
     }
 
@@ -80,6 +83,17 @@ public class Helper {
 
             }
         return list;
+    }
+
+    // return nearest Enemy
+    public static List<Hero> getEnemiesInRange(World world,Hero hero, int RANGE){
+
+        return cellInRangeOfSpot(world,hero.getCurrentCell(),RANGE)
+                .stream()
+                .filter( cell -> world.getMyHero(cell) == null)
+                .filter( cell -> world.getOppHero(cell) != null)
+                .map(world::getOppHero)
+                .collect(Collectors.toList());
     }
 
 }

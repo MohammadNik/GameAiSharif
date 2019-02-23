@@ -45,10 +45,10 @@ public class HealerManager implements HeroManager {
 
         if (isAllHpInRange(HP_H,HP_F)){
 
-            if (isAnyEnemyInRange() == null) moveToObjectiveZone();
+            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
         }else {
 
-            if (isLowestHpForMY(healerHero.getCurrentCell())) moveToNearestWall();
+            if (isLowestHpForMY()) moveToNearestWall();
             else moveToLowestHpHero(getCellOfLowestHpHero());
 
         }
@@ -62,11 +62,11 @@ public class HealerManager implements HeroManager {
 
         if (isAllHpInRange(HP_H,HP_F)){
 
-            if (isAnyEnemyInRange() != null) takeActionDamageEnemy();
+            if (getEnemyInRange() != null) takeActionDamageEnemy();
 
         }else {
 
-            if (isLowestHpForMY(healerHero.getCurrentCell())) takeActionHealMY();
+            if (isLowestHpForMY()) takeActionHealMY();
             else takeActionHealOT(getLowestHpHero());
 
         }
@@ -81,7 +81,7 @@ public class HealerManager implements HeroManager {
     }
 
     private void takeActionDamageEnemy(){
-        world.castAbility(healerHero, AbilityName.HEALER_ATTACK,isAnyEnemyInRange().getCurrentCell());
+        world.castAbility(healerHero, AbilityName.HEALER_ATTACK, getEnemyInRange().getCurrentCell());
     }
 
 
@@ -101,8 +101,8 @@ public class HealerManager implements HeroManager {
     }
 
 
-    private boolean isLowestHpForMY(Cell MYCell){
-        return getCellOfLowestHpHero() == MYCell;
+    private boolean isLowestHpForMY(){
+        return getCellOfLowestHpHero() == healerHero.getCurrentCell();
     }
 
     private Cell getCellOfLowestHpHero(){
@@ -114,14 +114,12 @@ public class HealerManager implements HeroManager {
     }
 
     // return nearest Enemy
-    private Hero isAnyEnemyInRange(){
-        List<Cell> cellsInRange = Helper.cellInRangeOfSpot(world,healerHero.getCurrentCell(),RANGE);
+    private Hero getEnemyInRange(){
+        List<Hero> heroes = Helper.getEnemiesInRange(world,healerHero,RANGE);
 
-        Cell cellOfOpp = cellsInRange.stream()
-                .filter(cell -> world.getOppHero(cell) != null && world.getMyHero(cell) == null)
-                .findFirst().orElse(null);
+        if (heroes.isEmpty()) return null;
 
-        return world.getOppHero(cellOfOpp);
+        return heroes.get(0);
     }
 
     private boolean isAllHpInRange(double startOfRange, double endOfRange){
@@ -133,7 +131,12 @@ public class HealerManager implements HeroManager {
     }
 
     private boolean isHpInRange(Hero hero, double startOfRange, double endOfRange){
-        return HCH(hero) >= HMH(hero)*startOfRange && HCH(hero) <= HMH(hero)*endOfRange;
+        boolean startCondition = HCH(hero) >= HMH(hero)*startOfRange;
+
+        // dont include zero in range
+        if (startOfRange == HP_Z) startCondition = HCH(hero) > HMH(hero)*startOfRange;
+
+        return startCondition && HCH(hero) <= HMH(hero)*endOfRange;
     }
     // ~~
     // hero max hp
