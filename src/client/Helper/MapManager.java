@@ -12,6 +12,7 @@ public class MapManager {
 
     static int radius = 2;
 
+    // TODO: 2019-02-23 fix this.
     // return the best cell for hiding, takes in makeAttemptHideTable()
     public static Cell findHidingCell(World world, Cell myHeroCell, Cell enemyCell) {
         // TODO: 2019-02-20 Can you use remaining phasesCount to provide a more efficient solution?
@@ -63,7 +64,7 @@ public class MapManager {
             {
                 if(world.getMap().isInMap(i, j))
                 {
-                    table[j][i] = world.getMap().getCell(j, i);
+                    table[i - curCellY + radius][j - curCellX + radius] = world.getMap().getCell(i, j);
                 }
                 else
                 {
@@ -75,6 +76,7 @@ public class MapManager {
         return table;
     }
 
+    // TODO: 2019-02-23 fix this.
     public static Cell[] findCellsOnLine(Cell from, Cell to, World world){
         int diff;
         Cell[] cells;
@@ -166,9 +168,9 @@ public class MapManager {
         return input;
     }
 
-    // TODO: 2019-02-23 complete this method based on priorotization of the 2 heroes.
-    // prirotizes the 2 heroes when forming a linear formation to tell who stands closer to (in front of) the enemy.
-    public static Cell[] prirotizeCells(Hero friendly1, Hero freindly2, Cell[] suggestedPositions){
+    // TODO: 2019-02-23 complete this method based on prioritization of the 2 heroes.
+    // prioritizes the 2 heroes when forming a linear formation to tell who stands closer to (in front of) the enemy.
+    public static Cell[] prioritizeCells(Hero friendly1, Hero freindly2, Cell[] suggestedPositions){
         return suggestedPositions;
     }
 
@@ -212,17 +214,17 @@ public class MapManager {
         heroes.add(new ArrayList<>());
         heroes.add(new ArrayList<>());
 
-        for(int i = 0; i < myHeroes.length; i++) {
-            int dist = world.manhattanDistance(myHeroes[i].getCurrentCell(), center);
-            if(dist != -1 && dist <= range) {
-                heroes.get(0).add(0, myHeroes[i].getCurrentCell());
+        for (Hero myHero : myHeroes) {
+            int dist = world.manhattanDistance(myHero.getCurrentCell(), center);
+            if (dist != -1 && dist <= range) {
+                heroes.get(0).add(0, myHero.getCurrentCell());
             }
         }
 
-        for(int i = 0; i < enemyHeroes.length; i++) {
-            int dist = world.manhattanDistance(enemyHeroes[i].getCurrentCell(), center);
-            if(dist != -1 && dist <= range) {
-                heroes.get(1).add(0, enemyHeroes[i].getCurrentCell());
+        for (Hero enemyHero : enemyHeroes) {
+            int dist = world.manhattanDistance(enemyHero.getCurrentCell(), center);
+            if (dist != -1 && dist <= range) {
+                heroes.get(1).add(0, enemyHero.getCurrentCell());
             }
         }
 
