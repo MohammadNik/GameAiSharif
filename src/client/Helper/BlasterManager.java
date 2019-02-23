@@ -30,7 +30,6 @@ public class BlasterManager implements HeroManager {
 
         normalAttack(currentHero);
 
-
         /***************************************DODGE*******************************************/
 
     }
@@ -43,11 +42,6 @@ public class BlasterManager implements HeroManager {
             world.moveHero(blaster, dir);
         }
     }
-
-    /*private int distanceCalculator(Cell cell1, Cell cell2) {
-        return Math.abs(cell1.getColumn() - cell2.getColumn()) + Math.abs(cell1.getRow() - cell2.getRow());
-
-    }*/
 
 
     //returns the nearest wall cell from the nearest OZ
@@ -69,7 +63,7 @@ public class BlasterManager implements HeroManager {
     }
 
     //moves the blaster to the trench
-    private void entrenchment(Hero blaster) { // FIXME: 2/22/2019 find more appropriate trench cells
+    private void entrenchment(Hero blaster) { // FIXME: 2/22/2019 find more appropriate trench cells and the new STRATEGY!
         Cell trench = nearestWalltoOZ();
         world.moveHero(blaster, Helper.nearestToCell(world, trench)); // FIXME: 2/22/2019 move to the bottom row of trench, not itself
 
@@ -117,10 +111,6 @@ public class BlasterManager implements HeroManager {
 
     //attacking
     public void normalAttack(Hero blaster){
-
-        Cell tempH = null;
-        Cell tempB = null;
-        Cell tempG = null;
 
         Cell[] heroCell = opponentHeroCell();
         for (int i = 0; i< heroCell.length; i++){
