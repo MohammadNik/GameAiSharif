@@ -1,7 +1,6 @@
 package client.Helper;
 
 import client.model.*;
-import com.sun.java.util.jar.pack.Instruction;
 
 import java.lang.reflect.Array;
 import java.util.Collections;
@@ -59,7 +58,7 @@ public class BlasterManager implements HeroManager {
         }
 
         /***************************************DODGE*******************************************/
-        // TODO: 2/24/2019 if normal attack or beneficial attack is false, doge! 
+        // TODO: 2/24/2019 if normal attack or beneficial attack is false, dodge!
 
     }
 
@@ -130,7 +129,8 @@ public class BlasterManager implements HeroManager {
 
         if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
             if(world.getAP() >= 15)
-                world.castAbility(blaster, AbilityName.BLASTER_ATTACK, heroCell);
+                if(Helper.distanceCalculator(heroCell, blaster.getCurrentCell()) <= 4)
+                    world.castAbility(blaster, AbilityName.BLASTER_ATTACK, heroCell);
             return true;
         }
         else
@@ -179,9 +179,9 @@ public class BlasterManager implements HeroManager {
         Cell[] heroCell = opponentHeroCell();
         if(heroCell != null)
             for (int i = 0; i< heroCell.length; i++){
-                if( Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
-                    if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20){ //fastest to be killed
-                        if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
+                if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()){
+                    if(Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
+                        if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20) {//fastest to be killed
                             fastKilledPriority(heroCell[i]);
                             return true;
                         }
@@ -233,7 +233,8 @@ public class BlasterManager implements HeroManager {
         
         if(blaster.getAbility(AbilityName.BLASTER_BOMB).isReady()) {
             if(world.getAP() >= 25)
-                world.castAbility(blaster, AbilityName.BLASTER_BOMB, heroCell);
+                if(Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4)
+                    world.castAbility(blaster, AbilityName.BLASTER_BOMB, heroCell);
             return true; 
         }
         else
