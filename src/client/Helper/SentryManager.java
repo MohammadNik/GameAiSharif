@@ -157,8 +157,8 @@ public class SentryManager implements HeroManager {
     // final offensive/defensive ability method "dodge"
     private boolean sentryDodge(Hero sentry) {
         try {
-            if (defensiveDodge(sentry)) ;
-            else if (offensiveDodge(sentry)) ;
+            if (defensiveDodge(sentry)) System.out.print("defensive: ");
+            else if (offensiveDodge(sentry)) System.out.print("offensive: ");
             return true;
         } catch (Exception e) {
             return false;
