@@ -28,10 +28,14 @@ public class BlasterManager implements HeroManager {
 
         /***************************************OFFENCE*****************************************/
 
+        normalAttack(currentHero);
+
 
         /***************************************DODGE*******************************************/
 
     }
+
+    /*********************************************MOVE***************************************************/
 
     private void moveToObjectiveZone(Hero blaster) {
         for (Direction dir :
@@ -70,6 +74,8 @@ public class BlasterManager implements HeroManager {
         world.moveHero(blaster, Helper.nearestToCell(world, trench)); // FIXME: 2/22/2019 move to the bottom row of trench, not itself
 
     }
+
+    /********************************************ATTACK AND BOMB*******************************************/
 
     //returns an array of hero cells ( if the cell is in vision )
     public Cell[] opponentHeroCell(){
@@ -135,6 +141,9 @@ public class BlasterManager implements HeroManager {
                     world.castAbility(world.getOppHero(tempB), AbilityName.BLASTER_ATTACK, tempB);
                     world.castAbility(world.getOppHero(tempG), AbilityName.BLASTER_ATTACK, tempG);
                 }
+
+
+
             }
         }
 
