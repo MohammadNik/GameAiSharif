@@ -105,7 +105,7 @@ public class BlasterManager implements HeroManager {
     /******************************************************************************************************/
 
     //returns an array of hero cells ( if the cell is in vision )
-    public Cell[] opponentHeroCell(){
+    private Cell[] opponentHeroCell(){
 
         Cell[] enemyCells = null;
         int i = 0;
@@ -125,7 +125,7 @@ public class BlasterManager implements HeroManager {
     //////////////////////////////////////////////////BENEFICIAL////////////////////////////////////////////////////////
     //attacking if the opponent heroes are in our ideal position
     //Parameter "heroCell" is beneficialTarget()
-    public boolean beneficialAttack(Cell heroCell){
+    private boolean beneficialAttack(Cell heroCell){
 
         if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
             if(world.getAP() >= 15)
@@ -137,7 +137,7 @@ public class BlasterManager implements HeroManager {
             return false;
     }
 
-    public Cell[] enemiesNexttoEachOther(){
+    private Cell[] enemiesNexttoEachOther(){
 
         Cell[] enemies = opponentHeroCell();
         Cell[] Nextto = null;
@@ -158,7 +158,7 @@ public class BlasterManager implements HeroManager {
     }
 
     //Find the Best Target to Attack
-    public Cell beneficialTarget(){
+    private Cell beneficialTarget(){
 
         Cell[] Nextto = enemiesNexttoEachOther();
         for(int i = 0; i <Nextto.length; i++){
@@ -174,7 +174,7 @@ public class BlasterManager implements HeroManager {
     ////////////////////////////////////////////////////NORMAL//////////////////////////////////////////////////////////
 
     //attacking
-    public boolean normalAttack(){
+    private boolean normalAttack(){
 
         Cell[] heroCell = opponentHeroCell();
         if(heroCell != null)
@@ -196,7 +196,7 @@ public class BlasterManager implements HeroManager {
         return false; //heroCell is null
     }
     //Attack Fast Killed Enemy by Priority
-    public void fastKilledPriority( Cell enemy ){
+    private void fastKilledPriority( Cell enemy ){
 
         Cell tempH = null;
         Cell tempB = null;
@@ -229,7 +229,7 @@ public class BlasterManager implements HeroManager {
 
     //Bombing
     //heroCell is beneficialTarget()
-    public boolean bomb(Cell heroCell){
+    private boolean bomb(Cell heroCell){
         
         if(blaster.getAbility(AbilityName.BLASTER_BOMB).isReady()) {
             if(world.getAP() >= 25)
