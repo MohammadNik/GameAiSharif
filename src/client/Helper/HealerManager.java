@@ -45,11 +45,13 @@ public class HealerManager implements HeroManager {
 
         if (isAllHpInRange(HP_H,HP_F)){
 
-            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
+//            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
+            if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
+
         }else {
 
-            if (isLowestHpForMY()) moveToNearestWall();
-            else moveToLowestHpHero(getCellOfLowestHpHero());
+            if (isLowestHpForMY()) moveToNearestSafeCell();
+            else moveToLowestHpHero();
 
         }
 
@@ -85,18 +87,37 @@ public class HealerManager implements HeroManager {
     }
 
 
-
-    private void moveToLowestHpHero(Cell targetCell){
+    private void moveToLowestHpHero(){
         // TODO: 2019-02-23 complete me
+        Cell hCell = healerHero.getCurrentCell();
+         Cell cell =Helper.cellInRangeOfSpot(world,getCellOfLowestHpHero(),4)
+                 .stream()
+                 .reduce( (result,eachCell)-> {
+                     if ( Helper.distanceCalculator(hCell,eachCell) <= Helper.distanceCalculator(hCell,result) ) return eachCell;
+                     else return result;
+                 }).orElse(null);
+
+         moveHealerTo(cell);
+
     }
     // ~~
-    private void moveToNearestWall(){
+    private void moveToNearestSafeCell(){
         // TODO: 2019-02-23 complete me
+        Cell ECell = getEnemyInRange().getCurrentCell();
+
+        if (ECell == null)
+            return;
+
+        moveHealerTo(MapManager.findHidingCell(world,healerHero.getCurrentCell(),ECell));
 
     }
     // ~~
     private void moveToObjectiveZone(){
-        for (Direction dir: world.getPathMoveDirections(healerHero.getCurrentCell(),Helper.nearestCellFromOZ(world,healerHero.getCurrentCell())))
+        moveHealerTo( Helper.nearestCellFromOZ(world,healerHero.getCurrentCell()) );
+    }
+
+    private void moveHealerTo(Cell target){
+        for (Direction dir: world.getPathMoveDirections(healerHero.getCurrentCell(),target))
             world.moveHero(healerHero,dir);
     }
 
@@ -109,7 +130,7 @@ public class HealerManager implements HeroManager {
         return getLowestHpHero().getCurrentCell();
     }
 
-    private Hero getLowestHpHero(){
+    public Hero getLowestHpHero(){
         return Arrays.stream(world.getMyHeroes()).sorted(Comparator.comparing(Hero::getCurrentHP)).findFirst().get();
     }
 
