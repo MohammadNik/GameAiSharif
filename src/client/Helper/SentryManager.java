@@ -114,11 +114,16 @@ public class SentryManager implements HeroManager {
     /***************************************normal attack ability "methods"********************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final normal attack method
     private boolean sentryAttack(Hero sentry) {
-        Cell enemyCell = getNearestEnemyHero(sentry);
-        // check if target is in attack range then crush 'em all :P
-        if (isInAttackRange(sentry, enemyCell)) world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
-        else return false; // if target is not in range
-        return true; // if target is in range
+        try {
+            Cell enemyCell = getNearestEnemyHero(sentry);
+            // check if target is in attack range then crush 'em all :P
+            if (isInAttackRange(sentry, enemyCell)) {
+                world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
+                return true; // if target is in range
+            } else return false; // if target is not in range
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /*******************************special sentry offensive ability 'RAY' "method"s***********************************/ // TODO: 2/21/2019 functionality improvement is needed
