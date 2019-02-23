@@ -1,8 +1,11 @@
 package client.Helper;
 
 import client.model.*;
+import com.sun.java.util.jar.pack.Instruction;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
+import java.util.List;
 
 public class BlasterManager implements HeroManager {
     private World world;
@@ -33,8 +36,23 @@ public class BlasterManager implements HeroManager {
 
         /***************************************OFFENCE*****************************************/
 
-        normalAttack();
-        //world.castAbility(world.getOppHero(world.getOppHeroes()[0].getCurrentCell()), AbilityName.BLASTER_ATTACK, world.getOppHeroes()[0].getCurrentCell());
+        switch (enemiesNexttoEachOther().length){
+            case 2:
+                normalAttack();
+                break;
+            case 4:
+                beneficialAttack(beneficialTarget());
+                break;
+            /*case 6:
+                bomb();
+                break;
+            case 8:
+                bomb();
+                break;*/
+            default:
+                break;
+
+        }
 
         /***************************************DODGE*******************************************/
 
@@ -82,7 +100,6 @@ public class BlasterManager implements HeroManager {
     /********************************************ATTACK AND BOMB*******************************************/
     /******************************************************************************************************/
 
-
     //returns an array of hero cells ( if the cell is in vision )
     public Cell[] opponentHeroCell(){
 
@@ -101,61 +118,49 @@ public class BlasterManager implements HeroManager {
         return enemyCells;
     }
 
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////BENEFICIAL////////////////////////////////////////////////////////
     //attacking if the opponent heroes are in our ideal position
-    public void beneficialAttack(Cell[] heroCell){
+    //Parameter "heroCell" is beneficialTarget()
+    public void beneficialAttack(Cell heroCell){
 
-
-
+        world.castAbility(world.getOppHero(heroCell), AbilityName.BLASTER_ATTACK, heroCell);
     }
 
+    public Cell[] enemiesNexttoEachOther(){
 
-    /*public Cell[] sameColumnEnemy(){
-
-        int index = 0;
-        Cell[] sameColumn = null;
         Cell[] enemies = opponentHeroCell();
+        Cell[] Nextto = null;
+        int index = 0;
+        for ( int i = 0; i <enemies.length; i++) {
+            for (int j = i+1; j<enemies.length; j++) {
+                if (world.manhattanDistance(enemies[i], enemies[i + j]) == 1) {
+                    Nextto[index] = enemies[i];
+                    Nextto[index+1] = enemies[i+j];
+                    index +=2;
 
-        for(int i = 0; i <enemies.length; i++){
-            for (int j = i+1; j <enemies.length; j++){
-                if(enemies[i+j].getColumn() == enemies[i].getColumn()) {
-                    sameColumn[index] = enemies[i];
-                    index++;
                 }
+            }
+
+        }
+
+        return Nextto;
+    }
+
+    //Find the Best Target to Attack
+    public Cell beneficialTarget(){
+
+        Cell[] Nextto = enemiesNexttoEachOther();
+        for(int i = 0; i <Nextto.length; i++){
+            for(int j = i+1; j <Nextto.length; j++){
+                if(Nextto[i] == Nextto[i+j])
+                    return Nextto[i];
             }
         }
 
-        return sameColumn;
+        return null;
     }
 
-
-    public Cell[] sameRowEnemy(){
-
-        int index = 0;
-        Cell[] sameRow = null;
-        Cell[] enemies = opponentHeroCell();
-
-        for(int i = 0; i <enemies.length; i++){
-            for (int j = i+1; j <enemies.length; j++){
-                if(enemies[i+j].getRow() == enemies[i].getRow()) {
-                    sameRow[index] = enemies[i];
-                    index++;
-                }
-            }
-        }
-
-        return sameRow;
-    }*/
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    //Bombing if the opponent heroes are in our ideal position
-    public void beneficialBomb (Cell[] heroCell){
-
-    }
-
+    ////////////////////////////////////////////////////NORMAL//////////////////////////////////////////////////////////
 
     //attacking
     public boolean normalAttack(){
@@ -208,9 +213,11 @@ public class BlasterManager implements HeroManager {
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     //Bombing
-    public void normalBomb(Cell[] heroCell){
+    public void bomb(Cell[] heroCell){
 
     }
 
