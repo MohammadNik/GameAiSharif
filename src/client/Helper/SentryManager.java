@@ -82,7 +82,7 @@ public class SentryManager implements HeroManager {
     private ArrayList<Cell> getAttackPositionCells() {
         Cell enemyCell = getNearestEnemyHero();
         ArrayList<Cell> attackCells = new ArrayList<>();
-        // check which cells are within range of 5 to 7
+        // check which cells are within range of 7
         for (Cell[] cells : world.getMap().getCells())
             for (Cell cell : cells) {
                 if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7) // FIXME: 2/21/2019 no name found to create a check method :(
