@@ -54,66 +54,50 @@ public class SentryManager implements HeroManager {
     /************************************move sentry to attack position "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // get all visible enemy heroes
     private ArrayList<Cell> getVisibleEnemyHeroes() {
-        try {
-            ArrayList<Cell> enemyCells = new ArrayList<>();
+        ArrayList<Cell> enemyCells = new ArrayList<>();
 
-            // check all map cells to find visible enemies cells
-            for (Cell[] cells : world.getMap().getCells())
-                for (Cell cell : cells) {
-                    if (world.getOppHero(cell) != null) enemyCells.add(cell);
-                } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
+        // check all map cells to find visible enemies cells
+        for (Cell[] cells : world.getMap().getCells())
+            for (Cell cell : cells) {
+                if (world.getOppHero(cell) != null) enemyCells.add(cell);
+            } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
 
-            return enemyCells;
-        } catch (Exception e) {
-            return null;
-        }
+        return enemyCells;
     }
 
     // get nearest visible enemy hero from sentry hero
     private Cell getNearestEnemyHero(Hero sentry) {
-        try {
-            ArrayList<Cell> enemyCells = getVisibleEnemyHeroes();
-            // check which enemy is nearest to sentry hero
-            Cell nearestEnemyCell = enemyCells.get(0); // FIXME: 2/21/2019
-            for (Cell enemyCell : enemyCells) {
-                nearestEnemyCell = getNearerCellFromHero(sentry, nearestEnemyCell, enemyCell);
-            }
-            return nearestEnemyCell;
-        } catch (Exception e) {
-            return null;
+        ArrayList<Cell> enemyCells = getVisibleEnemyHeroes();
+        // check which enemy is nearest to sentry hero
+        Cell nearestEnemyCell = enemyCells.get(0); // FIXME: 2/21/2019
+        for (Cell enemyCell : enemyCells) {
+            nearestEnemyCell = getNearerCellFromHero(sentry, nearestEnemyCell, enemyCell);
         }
+        return nearestEnemyCell;
     }
 
     // gets all non-wall cells around an enemy within range of "7"
     private ArrayList<Cell> getAttackPositionCells(Hero sentry) {
-        try {
-            Cell enemyCell = getNearestEnemyHero(sentry);
-            ArrayList<Cell> attackCells = new ArrayList<>();
-            // check which cells are within range of 7
-            for (Cell[] cells : world.getMap().getCells())
-                for (Cell cell : cells) {
-                    if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7) // FIXME: 2/21/2019 no name found to create a check method :(
-                        attackCells.add(cell);
-                } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
-            return attackCells;
-        } catch (Exception e) {
-            return null;
-        }
+        Cell enemyCell = getNearestEnemyHero(sentry);
+        ArrayList<Cell> attackCells = new ArrayList<>();
+        // check which cells are within range of 7
+        for (Cell[] cells : world.getMap().getCells())
+            for (Cell cell : cells) {
+                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7) // FIXME: 2/21/2019 no name found to create a check method :(
+                    attackCells.add(cell);
+            } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
+        return attackCells;
     }
 
     // get nearest cell in attack range of sentry of an enemy
     private Cell getNearestAttackCell(Hero sentry) {
-        try {
-            ArrayList<Cell> attackCells = getAttackPositionCells(sentry);
-            // check which attack cell is nearest to sentry hero
-            Cell nearestAttackCell = attackCells.get(0); // FIXME: 2/21/2019
-            for (Cell attackCell : attackCells) {
-                nearestAttackCell = getNearerCellFromHero(sentry, nearestAttackCell, attackCell);
-            }
-            return nearestAttackCell;
-        } catch (Exception e) {
-            return null;
+        ArrayList<Cell> attackCells = getAttackPositionCells(sentry);
+        // check which attack cell is nearest to sentry hero
+        Cell nearestAttackCell = attackCells.get(0); // FIXME: 2/21/2019
+        for (Cell attackCell : attackCells) {
+            nearestAttackCell = getNearerCellFromHero(sentry, nearestAttackCell, attackCell);
         }
+        return nearestAttackCell;
     }
 
     // final move to attack position method
