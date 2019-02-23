@@ -2,6 +2,8 @@ package client.Helper;
 
 import client.model.*;
 
+import java.lang.reflect.Array;
+
 public class BlasterManager implements HeroManager {
     private World world;
     private Hero blaster;
@@ -80,10 +82,6 @@ public class BlasterManager implements HeroManager {
     /********************************************ATTACK AND BOMB*******************************************/
     /******************************************************************************************************/
 
-    //is ability ready
-    private boolean isReady(Ability ability) {
-        return ability.getRemCooldown() == 0;
-    }
 
     //returns an array of hero cells ( if the cell is in vision )
     public Cell[] opponentHeroCell(){
@@ -91,26 +89,66 @@ public class BlasterManager implements HeroManager {
         Cell[] enemyCells = null;
         int i = 0;
         for (Cell[] cells : world.getMap().getCells()) {
-            for (Cell cell : cells){
+            for (Cell cell : cells)
                 if (world.getOppHero(cell) == null)
                     continue;
-                else{
+                else {
                     enemyCells[i] = cell;
                     i++;
                 }
-            }
         }
 
         return enemyCells;
     }
 
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //attacking if the opponent heroes are in our ideal position
     public void beneficialAttack(Cell[] heroCell){
 
 
 
     }
+
+
+    /*public Cell[] sameColumnEnemy(){
+
+        int index = 0;
+        Cell[] sameColumn = null;
+        Cell[] enemies = opponentHeroCell();
+
+        for(int i = 0; i <enemies.length; i++){
+            for (int j = i+1; j <enemies.length; j++){
+                if(enemies[i+j].getColumn() == enemies[i].getColumn()) {
+                    sameColumn[index] = enemies[i];
+                    index++;
+                }
+            }
+        }
+
+        return sameColumn;
+    }
+
+
+    public Cell[] sameRowEnemy(){
+
+        int index = 0;
+        Cell[] sameRow = null;
+        Cell[] enemies = opponentHeroCell();
+
+        for(int i = 0; i <enemies.length; i++){
+            for (int j = i+1; j <enemies.length; j++){
+                if(enemies[i+j].getRow() == enemies[i].getRow()) {
+                    sameRow[index] = enemies[i];
+                    index++;
+                }
+            }
+        }
+
+        return sameRow;
+    }*/
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     //Bombing if the opponent heroes are in our ideal position
@@ -141,7 +179,6 @@ public class BlasterManager implements HeroManager {
             }
         return false; //heroCell is null
     }
-
     //Attack Fast Killed Enemy by Priority
     public void fastKilledPriority( Cell enemy ){
 
