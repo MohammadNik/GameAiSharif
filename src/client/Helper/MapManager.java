@@ -4,16 +4,19 @@ import client.model.Cell;
 import client.model.Hero;
 import client.model.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class MapManager {
 
     static int radius = 2;
 
     // return the best cell for hiding, takes in makeAttemptHideTable()
-    public static Cell findHidingCell(Cell[][] table, World world, Cell enemyCell)
-    {
+    public static Cell findHidingCell(World world, Cell myHeroCell, Cell enemyCell) {
         // TODO: 2019-02-20 Can you use remaining phasesCount to provide a more efficient solution?
         //boolean[][] hidingTable = new boolean[radius * 2 + 1][radius * 2 + 1];
-
+        Cell[][] table = makeAttemptHideTable(myHeroCell,world);
         Cell choiceCell = table[0][0];
         int distance = 100;
 
@@ -45,7 +48,7 @@ public class MapManager {
     }
 
     // returns a table around a designated Cell, mainly used when an enemy is seen and you'd like to hide from it.
-    public static Cell[][] makeAttemptHideTable(Cell curCell, World world){
+    public static Cell[][] makeAttemptHideTable(Cell curCell, World world) {
 
         //character's coordinates may be in a way that we may not be able to make the table well, like 0,0!
         //SOLVED: ypu don't need to count that in, we simply make our checking area smaller.(instead of i * j, have i * (j - 1) table.
@@ -163,8 +166,10 @@ public class MapManager {
         return input;
     }
 
-    public static Cell[] priorotizeCells(Hero friendly1, Hero freindly2, Cell[] suggestedPositions){
-        return new Cell[] { friendly1.getCurrentCell() };
+    // TODO: 2019-02-23 complete this method based on priorotization of the 2 heroes.
+    // prirotizes the 2 heroes when forming a linear formation to tell who stands closer to (in front of) the enemy.
+    public static Cell[] prirotizeCells(Hero friendly1, Hero freindly2, Cell[] suggestedPositions){
+        return suggestedPositions;
     }
 
     //returns 2 cells indicating for 2 friendly heroes where to stand to form a linear formation.
@@ -192,5 +197,35 @@ public class MapManager {
             cells[1] = cells[0];
 
         return cells;
+    }
+
+    // takes in a range(manhattan), range is based upon a center, and a world for access to map and heroes.
+    // returns a List<List<Cell>>:
+        //.get(0).get(i); indicates i-th friendly hero if and only if i-th friendly hero is in that position, otherwise it's null.
+        //.get(1).get(j) ; indicates i-th enemy hero if and only if i-th enemy hero is in that position, otherwise it's null.
+    // TODO: 2019-02-23 return a Cell[][] instead of a list for ease of use, just notify others of how to access it without knowing its length.
+    public static List<List<Cell>> findHeroesCellsInManhattanRange(int range, Cell center, World world) {
+        Hero[] myHeroes = world.getMyHeroes();
+        Hero[] enemyHeroes = world.getOppHeroes();
+
+        List<List<Cell>> heroes = new ArrayList<>();
+        heroes.add(new ArrayList<>());
+        heroes.add(new ArrayList<>());
+
+        for(int i = 0; i < myHeroes.length; i++) {
+            int dist = world.manhattanDistance(myHeroes[i].getCurrentCell(), center);
+            if(dist != -1 && dist <= range) {
+                heroes.get(0).add(0, myHeroes[i].getCurrentCell());
+            }
+        }
+
+        for(int i = 0; i < enemyHeroes.length; i++) {
+            int dist = world.manhattanDistance(enemyHeroes[i].getCurrentCell(), center);
+            if(dist != -1 && dist <= range) {
+                heroes.get(1).add(0, enemyHeroes[i].getCurrentCell());
+            }
+        }
+
+        return heroes;
     }
 }
