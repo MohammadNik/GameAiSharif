@@ -4,6 +4,7 @@ import client.model.*;
 
 public class BlasterManager implements HeroManager {
     private World world;
+    private Hero blaster;
 
 
     @Override
@@ -15,8 +16,9 @@ public class BlasterManager implements HeroManager {
     @Override
     public void move(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
+        this.blaster = currentHero;  // WARNING: DON'T CHANGE THIS !!
 
-        moveToObjectiveZone(currentHero);
+        moveToObjectiveZone();
 
         //entrenchment(currentHero);
 
@@ -25,18 +27,23 @@ public class BlasterManager implements HeroManager {
     @Override
     public void takeAction(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
+        this.blaster = currentHero;  // WARNING: DON'T CHANGE THIS !!
 
         /***************************************OFFENCE*****************************************/
 
-        normalAttack(currentHero);
+        normalAttack();
+        //world.castAbility(world.getOppHero(world.getOppHeroes()[0].getCurrentCell()), AbilityName.BLASTER_ATTACK, world.getOppHeroes()[0].getCurrentCell());
 
         /***************************************DODGE*******************************************/
 
     }
 
-    /*********************************************MOVE***************************************************/
 
-    private void moveToObjectiveZone(Hero blaster) {
+    /****************************************************************************************************/
+    /*********************************************MOVE***************************************************/
+    /****************************************************************************************************/
+
+    private void moveToObjectiveZone() {
         for (Direction dir :
                 world.getPathMoveDirections(blaster.getCurrentCell(), Helper.nearestCellFromOZ(world, blaster.getCurrentCell()))) {
             world.moveHero(blaster, dir);
@@ -63,13 +70,15 @@ public class BlasterManager implements HeroManager {
     }
 
     //moves the blaster to the trench
-    private void entrenchment(Hero blaster) { // FIXME: 2/22/2019 find more appropriate trench cells and the new STRATEGY!
+    private void entrenchment() { // FIXME: 2/22/2019 find more appropriate trench cells and the new STRATEGY!
         Cell trench = nearestWalltoOZ();
         world.moveHero(blaster, Helper.nearestToCell(world, trench)); // FIXME: 2/22/2019 move to the bottom row of trench, not itself
 
     }
 
+    /******************************************************************************************************/
     /********************************************ATTACK AND BOMB*******************************************/
+    /******************************************************************************************************/
 
     //is ability ready
     private boolean isReady(Ability ability) {
@@ -79,18 +88,20 @@ public class BlasterManager implements HeroManager {
     //returns an array of hero cells ( if the cell is in vision )
     public Cell[] opponentHeroCell(){
 
-        Cell[] HeroCells = null;
+        Cell[] enemyCells = null;
         int i = 0;
         for (Cell[] cells : world.getMap().getCells()) {
-            for (Cell cell : cells)
-                if (world.getOppHero(cell).getName() == HeroName.SENTRY || world.getOppHero(cell).getName() == HeroName.BLASTER ||
-                        world.getOppHero(cell).getName() == HeroName.GUARDIAN || world.getOppHero(cell).getName() == HeroName.HEALER) {
-                    HeroCells[i] = cell;
+            for (Cell cell : cells){
+                if (world.getOppHero(cell) == null)
+                    continue;
+                else{
+                    enemyCells[i] = cell;
                     i++;
                 }
             }
+        }
 
-        return HeroCells;
+        return enemyCells;
     }
 
 
@@ -109,21 +120,26 @@ public class BlasterManager implements HeroManager {
 
 
     //attacking
-    public void normalAttack(Hero blaster){
+    public boolean normalAttack(){
 
         Cell[] heroCell = opponentHeroCell();
-        for (int i = 0; i< heroCell.length; i++){
-            if( Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
-                if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20){ //fastest to be killed
-                    if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady())
-                        fastKilledPriority(heroCell[i]);
+        if(heroCell != null)
+            for (int i = 0; i< heroCell.length; i++){
+                if( Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
+                    if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20){ //fastest to be killed
+                        if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
+                            fastKilledPriority(heroCell[i]);
+                            return true;
+                        }
+                    }
+
+                    else if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
+                        world.castAbility(world.getOppHero(heroCell[i]), AbilityName.BLASTER_ATTACK, heroCell[i]); // FIXME: 2/23/2019 more priority
+                        return true;
+                    }
                 }
-
-                else if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady())
-                    world.castAbility(world.getOppHero(heroCell[i]), AbilityName.BLASTER_ATTACK, heroCell[i]); // FIXME: 2/23/2019 more priority
             }
-        }
-
+        return false; //heroCell is null
     }
 
     //Attack Fast Killed Enemy by Priority
