@@ -44,10 +44,10 @@ public class BlasterManager implements HeroManager {
         }
     }
 
-    private int distanceCalculator(Cell cell1, Cell cell2) {
+    /*private int distanceCalculator(Cell cell1, Cell cell2) {
         return Math.abs(cell1.getColumn() - cell2.getColumn()) + Math.abs(cell1.getRow() - cell2.getRow());
 
-    }
+    }*/
 
 
     //returns the nearest wall cell from the nearest OZ
@@ -58,8 +58,8 @@ public class BlasterManager implements HeroManager {
         for (Cell[] cells : world.getMap().getCells()) {
             for (Cell cell : cells) {
                 if (cell.isWall()) {
-                    if (distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell)) <= minWallDis)
-                        minWallDis = distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell));
+                    if (Helper.distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell)) <= minWallDis)
+                        minWallDis = Helper.distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell));
                     minWallDisCell = cell;
                 }
             }
@@ -76,6 +76,11 @@ public class BlasterManager implements HeroManager {
     }
 
     /********************************************ATTACK AND BOMB*******************************************/
+
+    //is ability ready
+    private boolean isReady(Ability ability) {
+        return ability.getRemCooldown() == 0;
+    }
 
     //returns an array of hero cells ( if the cell is in vision )
     public Cell[] opponentHeroCell(){
@@ -119,33 +124,45 @@ public class BlasterManager implements HeroManager {
 
         Cell[] heroCell = opponentHeroCell();
         for (int i = 0; i< heroCell.length; i++){
-            if( distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
+            if( Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
                 if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20){ //fastest to be killed
-                    switch (world.getOppHero(heroCell[i]).getName()){
-                        case SENTRY:
-                            world.castAbility(world.getOppHero(heroCell[i]), AbilityName.BLASTER_ATTACK, heroCell[i]);
-                            break;
-                        case HEALER:
-                            tempH = heroCell[i];
-                            break;
-                        case BLASTER:
-                            tempB = heroCell[i];
-                            break;
-                        case GUARDIAN:
-                            tempG = heroCell[i];
-                            break;
-                        default:
-                                break;
-                    }
-                    world.castAbility(world.getOppHero(tempH), AbilityName.BLASTER_ATTACK, tempH);
-                    world.castAbility(world.getOppHero(tempB), AbilityName.BLASTER_ATTACK, tempB);
-                    world.castAbility(world.getOppHero(tempG), AbilityName.BLASTER_ATTACK, tempG);
+                    if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady())
+                        fastKilledPriority(heroCell[i]);
                 }
 
-
-
+                else if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady())
+                    world.castAbility(world.getOppHero(heroCell[i]), AbilityName.BLASTER_ATTACK, heroCell[i]); // FIXME: 2/23/2019 more priority
             }
         }
+
+    }
+
+    //Attack Fast Killed Enemy by Priority
+    public void fastKilledPriority( Cell enemy ){
+
+        Cell tempH = null;
+        Cell tempB = null;
+        Cell tempG = null;
+
+        switch (world.getOppHero(enemy).getName()){
+            case SENTRY:
+                world.castAbility(world.getOppHero(enemy), AbilityName.BLASTER_ATTACK, enemy);
+                break;
+            case HEALER:
+                tempH = enemy;
+                break;
+            case BLASTER:
+                tempB = enemy;
+                break;
+            case GUARDIAN:
+                tempG = enemy;
+                break;
+            default:
+                break;
+        }
+        world.castAbility(world.getOppHero(tempH), AbilityName.BLASTER_ATTACK, tempH);
+        world.castAbility(world.getOppHero(tempB), AbilityName.BLASTER_ATTACK, tempB);
+        world.castAbility(world.getOppHero(tempG), AbilityName.BLASTER_ATTACK, tempG);
 
     }
 
