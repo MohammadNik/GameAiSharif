@@ -105,13 +105,13 @@ public class BlasterManager implements HeroManager {
 
 
     //attacking
-    public void normalAttack(Cell[] heroCell, Hero blaster){
+    public void normalAttack(Hero blaster){
 
         Cell tempH = null;
         Cell tempB = null;
         Cell tempG = null;
 
-        heroCell = opponentHeroCell();
+        Cell[] heroCell = opponentHeroCell();
         for (int i = 0; i< heroCell.length; i++){
             if( distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
                 if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20){ //fastest to be killed
