@@ -47,7 +47,7 @@ public class HealerManager implements HeroManager {
 
 //            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
             if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
-            else if ()
+
         }else {
 
             if (isLowestHpForMY()) moveToNearestSafeCell();
