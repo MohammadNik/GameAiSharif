@@ -4,7 +4,9 @@ import client.model.Cell;
 import client.model.Direction;
 import client.model.World;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Helper {
 
@@ -65,4 +67,19 @@ public class Helper {
                     return (distanceFromEachCell - distanceFromResult < 0 ) ? eachCell : result;
                 } ).orElse(cell);
     }
+
+
+    public static List<Cell> cellInRangeOfSpot(World world,Cell cell, int range){
+        List<Cell> list = new ArrayList<>();
+
+        for (int mx = 0 ; mx < world.getMap().getColumnNum() ; mx++)
+            for (int my=0 ; my < world.getMap().getRowNum() ; my++){
+                int fx = Math.abs(cell.getColumn()-mx);
+                int fy = Math.abs(cell.getRow()-my);
+                if (fx + fy <= range) list.add(world.getMap().getCell(my,mx));
+
+            }
+        return list;
+    }
+
 }
