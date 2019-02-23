@@ -45,7 +45,9 @@ public class HealerManager implements HeroManager {
 
         if (isAllHpInRange(HP_H,HP_F)){
 
-            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
+//            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
+            if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
+
         }else {
 
             if (isLowestHpForMY()) moveToNearestSafeCell();
@@ -83,7 +85,6 @@ public class HealerManager implements HeroManager {
     private void takeActionDamageEnemy(){
         world.castAbility(healerHero, AbilityName.HEALER_ATTACK, getEnemyInRange().getCurrentCell());
     }
-
 
 
     private void moveToLowestHpHero(){

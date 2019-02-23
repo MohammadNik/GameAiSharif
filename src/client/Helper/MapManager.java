@@ -4,6 +4,10 @@ import client.model.Cell;
 import client.model.Hero;
 import client.model.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class MapManager {
 
     static int radius = 2;
@@ -193,5 +197,35 @@ public class MapManager {
             cells[1] = cells[0];
 
         return cells;
+    }
+
+    // takes in a range(manhattan), range is based upon a center, and a world for access to map and heroes.
+    // returns a List<List<Cell>>:
+        //.get(0).get(i); indicates i-th friendly hero if and only if i-th friendly hero is in that position, otherwise it's null.
+        //.get(1).get(j) ; indicates i-th enemy hero if and only if i-th enemy hero is in that position, otherwise it's null.
+    // TODO: 2019-02-23 return a Cell[][] instead of a list for ease of use, just notify others of how to access it without knowing its length.
+    public static List<List<Cell>> findHeroesCellsInManhattanRange(int range, Cell center, World world) {
+        Hero[] myHeroes = world.getMyHeroes();
+        Hero[] enemyHeroes = world.getOppHeroes();
+
+        List<List<Cell>> heroes = new ArrayList<>();
+        heroes.add(new ArrayList<>());
+        heroes.add(new ArrayList<>());
+
+        for(int i = 0; i < myHeroes.length; i++) {
+            int dist = world.manhattanDistance(myHeroes[i].getCurrentCell(), center);
+            if(dist != -1 && dist <= range) {
+                heroes.get(0).add(0, myHeroes[i].getCurrentCell());
+            }
+        }
+
+        for(int i = 0; i < enemyHeroes.length; i++) {
+            int dist = world.manhattanDistance(enemyHeroes[i].getCurrentCell(), center);
+            if(dist != -1 && dist <= range) {
+                heroes.get(1).add(0, enemyHeroes[i].getCurrentCell());
+            }
+        }
+
+        return heroes;
     }
 }

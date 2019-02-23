@@ -8,6 +8,7 @@ import client.model.World;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Helper {
@@ -104,6 +105,13 @@ public class Helper {
                 .filter( cell -> world.getOppHero(cell) == null)
                 .map(world::getOppHero)
                 .collect(Collectors.toList());
+    }
+
+    public static List<Hero> getEnemiesInObjectiveZone(World world){
+        return Arrays.stream(world.getMap().getObjectiveZone())
+                .filter(cell -> !cell.isWall())
+                .map(world::getOppHero)
+                .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 
