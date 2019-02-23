@@ -90,8 +90,8 @@ public class SentryManager implements HeroManager {
         // check which cells are within range of 7
         for (Cell[] cells : world.getMap().getCells())
             for (Cell cell : cells) {
-                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7)
-                    attackCells.add(cell); // FIXME: 2/21/2019 no name found to create a check method :(
+                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7) // FIXME: 2/21/2019 no name found to create a check method :(
+                    attackCells.add(cell);
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
         if (attackCells.isEmpty()) return null;
         return attackCells;
@@ -130,7 +130,6 @@ public class SentryManager implements HeroManager {
 
     /*******************************special sentry offensive ability 'RAY' "method"s***********************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final special offensive ability method "ray"
-    // FIXME: 2/22/2019
     private boolean sentryCastRay(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
         if (enemyCell == null) return false;
