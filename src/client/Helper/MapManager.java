@@ -9,11 +9,10 @@ public class MapManager {
     static int radius = 2;
 
     // return the best cell for hiding, takes in makeAttemptHideTable()
-    public static Cell findHidingCell(Cell[][] table, World world, Cell enemyCell)
-    {
+    public static Cell findHidingCell(World world, Cell myHeroCell, Cell enemyCell) {
         // TODO: 2019-02-20 Can you use remaining phasesCount to provide a more efficient solution?
         //boolean[][] hidingTable = new boolean[radius * 2 + 1][radius * 2 + 1];
-
+        Cell[][] table = makeAttemptHideTable(myHeroCell,world);
         Cell choiceCell = table[0][0];
         int distance = 100;
 
@@ -45,7 +44,7 @@ public class MapManager {
     }
 
     // returns a table around a designated Cell, mainly used when an enemy is seen and you'd like to hide from it.
-    public static Cell[][] makeAttemptHideTable(Cell curCell, World world){
+    public static Cell[][] makeAttemptHideTable(Cell curCell, World world) {
 
         //character's coordinates may be in a way that we may not be able to make the table well, like 0,0!
         //SOLVED: ypu don't need to count that in, we simply make our checking area smaller.(instead of i * j, have i * (j - 1) table.
