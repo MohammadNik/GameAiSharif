@@ -163,8 +163,10 @@ public class MapManager {
         return input;
     }
 
-    public static Cell[] priorotizeCells(Hero friendly1, Hero freindly2, Cell[] suggestedPositions){
-        return new Cell[] { friendly1.getCurrentCell() };
+    // TODO: 2019-02-23 complete this method based on priorotization of the 2 heroes.
+    // prirotizes the 2 heroes when forming a linear formation to tell who stands closer to (in front of) the enemy.
+    public static Cell[] prirotizeCells(Hero friendly1, Hero freindly2, Cell[] suggestedPositions){
+        return suggestedPositions;
     }
 
     //returns 2 cells indicating for 2 friendly heroes where to stand to form a linear formation.
