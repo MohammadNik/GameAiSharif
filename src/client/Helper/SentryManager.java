@@ -52,8 +52,8 @@ public class SentryManager implements HeroManager {
     }
 
     /************************************move sentry to attack position "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
-    // get all visible enemy heroes
-    private ArrayList<Cell> getVisibleEnemyHeroes() {
+    // get all visible enemy heroes cells
+    private ArrayList<Cell> getVisibleEnemyHeroesCells() {
         ArrayList<Cell> enemyCells = new ArrayList<>();
 
         // check all map cells to find visible enemies cells
@@ -67,7 +67,7 @@ public class SentryManager implements HeroManager {
 
     // get nearest visible enemy hero from sentry hero
     private Cell getNearestEnemyHero(Hero sentry) {
-        ArrayList<Cell> enemyCells = getVisibleEnemyHeroes();
+        ArrayList<Cell> enemyCells = getVisibleEnemyHeroesCells();
         // check which enemy is nearest to sentry hero
         Cell nearestEnemyCell = enemyCells.get(0); // FIXME: 2/21/2019
         for (Cell enemyCell : enemyCells) {
@@ -80,10 +80,10 @@ public class SentryManager implements HeroManager {
     private ArrayList<Cell> getAttackPositionCells(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
         ArrayList<Cell> attackCells = new ArrayList<>();
-        // check which cells are within range of 7
+        // check which cells are within range of 5 to 7
         for (Cell[] cells : world.getMap().getCells())
             for (Cell cell : cells) {
-                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7) // FIXME: 2/21/2019 no name found to create a check method :(
+                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) <= 7 && world.manhattanDistance(cell, enemyCell) <= 5) // FIXME: 2/21/2019 no name found to create a check method :(
                     attackCells.add(cell);
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
         return attackCells;
@@ -115,7 +115,9 @@ public class SentryManager implements HeroManager {
     // final normal attack method
     private boolean sentryAttack(Hero sentry) {
         try {
-            Cell enemyCell = getNearestEnemyHero(sentry);
+            Cell enemyCell;
+            if (getBestTargetCell() != null) enemyCell = getBestTargetCell();
+            else enemyCell = getNearestEnemyHero(sentry);
             // check if target is in attack range then crush 'em all :P
             if (isInAttackRange(sentry, enemyCell)) {
                 world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
@@ -130,7 +132,9 @@ public class SentryManager implements HeroManager {
     // final special offensive ability method "ray"
     private boolean sentryCastRay(Hero sentry) {
         try {
-            Cell enemyCell = getNearestEnemyHero(sentry);
+            Cell enemyCell;
+            if (getBestTargetCell() != null) enemyCell = getBestTargetCell();
+            else enemyCell = getNearestEnemyHero(sentry);
             Ability sentryRay = sentry.getAbility(AbilityName.SENTRY_RAY);
             // check if ray ability is not on cooldown then poof 'em all :P
             if (isReady(sentryRay)) {
@@ -156,7 +160,7 @@ public class SentryManager implements HeroManager {
 
     // defensive use of ability method "dodge"
     private boolean defensiveDodge(Hero sentry) {
-        if (nearestEnemyDistance(sentry) < 4) {
+        if (nearestEnemyDistance(sentry) <= 4) {
             world.castAbility(sentry, AbilityName.SENTRY_DODGE, getNearestResZone(sentry));
             return true;
         }
@@ -202,5 +206,23 @@ public class SentryManager implements HeroManager {
             nearestCell = getNearerCellFromHero(sentry, nearestCell, cell);
         }
         return nearestCell;
+    }
+
+    // get best enemy cell as a target
+    private Cell getBestTargetCell() {
+        Hero lowestEnemyHP = getVisibleEnemyHeroes().get(0);
+        for (Hero hero : getVisibleEnemyHeroes()) {
+            if (hero.getCurrentHP() < lowestEnemyHP.getCurrentHP()) lowestEnemyHP = hero;
+        }
+        return lowestEnemyHP.getCurrentCell();
+    }
+
+    // get all visible enemy heroes
+    private ArrayList<Hero> getVisibleEnemyHeroes() {
+        ArrayList<Hero> visibleHeroes = new ArrayList<>();
+        for (Cell cell : getVisibleEnemyHeroesCells()) {
+            visibleHeroes.add(world.getOppHero(cell));
+        }
+        return visibleHeroes;
     }
 }
