@@ -16,9 +16,9 @@ public class BlasterManager implements HeroManager {
     public void move(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
 
-        //moveToObjectiveZone(currentHero);
+        moveToObjectiveZone(currentHero);
 
-        entrenchment(currentHero);
+        //entrenchment(currentHero);
 
     }
 
@@ -82,12 +82,11 @@ public class BlasterManager implements HeroManager {
         Cell[] HeroCells = null;
         int i = 0;
         for (Cell[] cells : world.getMap().getCells()) {
-            for (Cell cell : cells) {
-                    if(world.getOppHero(cell).getName() == HeroName.SENTRY || world.getOppHero(cell).getName() == HeroName.BLASTER ||
-                     world.getOppHero(cell).getName() == HeroName.GUARDIAN || world.getOppHero(cell).getName() == HeroName.HEALER) {
-                        HeroCells[i] = cell;
-                        i ++;
-                    }
+            for (Cell cell : cells)
+                if (world.getOppHero(cell).getName() == HeroName.SENTRY || world.getOppHero(cell).getName() == HeroName.BLASTER ||
+                        world.getOppHero(cell).getName() == HeroName.GUARDIAN || world.getOppHero(cell).getName() == HeroName.HEALER) {
+                    HeroCells[i] = cell;
+                    i++;
                 }
             }
 
