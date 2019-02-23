@@ -38,115 +38,134 @@ public class SentryManager implements HeroManager {
     /*************************************move sentry to objective zone "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final move to objective zone method
     private boolean moveToObjectiveZone(Hero sentry) {
-        // get nearest cell of hero from objective zone
-        Cell nearestCellFromObjectiveZone = Helper.nearestCellFromOZ(world, sentry.getCurrentCell());
-        // get next direction to move to objective zone
-        Direction nextDirection;
         try {
-            nextDirection = world.getPathMoveDirections(sentry.getCurrentCell(), nearestCellFromObjectiveZone)[0];
-        } catch (NullPointerException e) {
+            // get nearest cell of hero from objective zone
+            Cell nearestCellFromObjectiveZone = Helper.nearestCellFromOZ(world, sentry.getCurrentCell());
+            // get next direction to move to objective zone
+            Direction nextDirection;
+            nextDirection = world.getPathMoveDirections(sentry.getCurrentCell(), nearestCellFromObjectiveZone)[0]; // FIXME: 2/23/2019
+            world.moveHero(sentry, nextDirection);
+            return true;
+        } catch (Exception e) {
             return false;
         }
-        world.moveHero(sentry, nextDirection);
-        return true;
     }
 
     /************************************move sentry to attack position "methods"**************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // get all visible enemy heroes
     private ArrayList<Cell> getVisibleEnemyHeroes() {
         ArrayList<Cell> enemyCells = new ArrayList<>();
+
         // check all map cells to find visible enemies cells
         for (Cell[] cells : world.getMap().getCells())
             for (Cell cell : cells) {
-                try {
-                    if (world.getOppHero(cell) != null) enemyCells.add(cell);
-                } catch (NullPointerException e) {
-                    return null;
-                }
+                if (world.getOppHero(cell) != null) enemyCells.add(cell);
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
 
-        if (enemyCells.isEmpty()) return null;
         return enemyCells;
     }
 
     // get nearest visible enemy hero from sentry hero
     private Cell getNearestEnemyHero(Hero sentry) {
         ArrayList<Cell> enemyCells = getVisibleEnemyHeroes();
-        if (enemyCells == null) return null;
         // check which enemy is nearest to sentry hero
         Cell nearestEnemyCell = enemyCells.get(0); // FIXME: 2/21/2019
         for (Cell enemyCell : enemyCells) {
             nearestEnemyCell = getNearerCellFromHero(sentry, nearestEnemyCell, enemyCell);
         }
-        if (nearestEnemyCell == null) return null;
         return nearestEnemyCell;
     }
 
     // gets all non-wall cells around an enemy within range of "7"
     private ArrayList<Cell> getAttackPositionCells(Hero sentry) {
         Cell enemyCell = getNearestEnemyHero(sentry);
-        if (enemyCell == null) return null;
         ArrayList<Cell> attackCells = new ArrayList<>();
         // check which cells are within range of 7
         for (Cell[] cells : world.getMap().getCells())
             for (Cell cell : cells) {
-                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7)
-                    attackCells.add(cell); // FIXME: 2/21/2019 no name found to create a check method :(
+                if (!(cell.isWall()) && world.manhattanDistance(cell, enemyCell) == 7) // FIXME: 2/21/2019 no name found to create a check method :(
+                    attackCells.add(cell);
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
-        if (attackCells.isEmpty()) return null;
         return attackCells;
     }
 
     // get nearest cell in attack range of sentry of an enemy
     private Cell getNearestAttackCell(Hero sentry) {
         ArrayList<Cell> attackCells = getAttackPositionCells(sentry);
-        if (attackCells == null) return null;
         // check which attack cell is nearest to sentry hero
         Cell nearestAttackCell = attackCells.get(0); // FIXME: 2/21/2019
         for (Cell attackCell : attackCells) {
             nearestAttackCell = getNearerCellFromHero(sentry, nearestAttackCell, attackCell);
         }
-        if (nearestAttackCell == null) return null;
         return nearestAttackCell;
     }
 
     // final move to attack position method
     private boolean moveToAttackPosition(Hero sentry) {
-        Cell attackCell = getNearestAttackCell(sentry);
-        if (attackCell == null) return false;
-        world.moveHero(sentry, world.getPathMoveDirections(sentry.getCurrentCell(), attackCell)[0]);
-        return true;
+        try {
+            Cell attackCell = getNearestAttackCell(sentry);
+            world.moveHero(sentry, world.getPathMoveDirections(sentry.getCurrentCell(), attackCell)[0]);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /***************************************normal attack ability "methods"********************************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final normal attack method
     private boolean sentryAttack(Hero sentry) {
-        Cell enemyCell = getNearestEnemyHero(sentry);
-        // check if target is in attack range then crush 'em all :P
-        if (isInAttackRange(sentry, enemyCell)) world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
-        else return false; // if target is not in range
-        return true; // if target is in range
+        try {
+            Cell enemyCell = getNearestEnemyHero(sentry);
+            // check if target is in attack range then crush 'em all :P
+            if (isInAttackRange(sentry, enemyCell)) {
+                world.castAbility(sentry, AbilityName.SENTRY_ATTACK, enemyCell);
+                return true; // if target is in range
+            } else return false; // if target is not in range
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /*******************************special sentry offensive ability 'RAY' "method"s***********************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final special offensive ability method "ray"
-    // FIXME: 2/22/2019
     private boolean sentryCastRay(Hero sentry) {
-        Cell enemyCell = getNearestEnemyHero(sentry);
-        if (enemyCell == null) return false;
-        Ability sentryRay = sentry.getAbility(AbilityName.SENTRY_RAY);
-        // check if ray ability is not on cooldown then poof 'em all :P
-        if (isReady(sentryRay)) {
-            world.castAbility(sentry, AbilityName.SENTRY_RAY, enemyCell);
-            return true;
-        } else return false;
+        try {
+            Cell enemyCell = getNearestEnemyHero(sentry);
+            Ability sentryRay = sentry.getAbility(AbilityName.SENTRY_RAY);
+            // check if ray ability is not on cooldown then poof 'em all :P
+            if (isReady(sentryRay)) {
+                world.castAbility(sentry, AbilityName.SENTRY_RAY, enemyCell);
+                return true;
+            } else return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /******************************offensive/defensive sentry ability 'dodge' "method"*********************************/ // TODO: 2/21/2019 functionality improvement is needed
     // final offensive/defensive ability method "dodge"
     private boolean sentryDodge(Hero sentry) {
+        try {
+            if (defensiveDodge(sentry)) System.out.print("defensive: ");
+            else if (offensiveDodge(sentry)) System.out.print("offensive: ");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // defensive use of ability method "dodge"
+    private boolean defensiveDodge(Hero sentry) {
+        if (nearestEnemyDistance(sentry) < 4) {
+            world.castAbility(sentry, AbilityName.SENTRY_DODGE, getNearestResZone(sentry));
+            return true;
+        }
+        return false;
+    }
+
+    // offensive use of ability method "dodge'
+    private boolean offensiveDodge(Hero sentry) {
         Cell attackCell = getNearestAttackCell(sentry);
-        if (attackCell == null) return false;
         world.castAbility(sentry, AbilityName.SENTRY_DODGE, attackCell);
         return true;
     }
@@ -168,6 +187,20 @@ public class SentryManager implements HeroManager {
     private boolean isReady(Ability ability) {
         return ability.getRemCooldown() == 0;
     }
-}
 
-// TODO: 2/21/2019 make null exceptions handled with try-catch statement(or throws?!)
+    // get manhattan distance of sentry and nearest enemy hero
+    private int nearestEnemyDistance(Hero sentry) {
+        return world.manhattanDistance(sentry.getCurrentCell(), getNearestEnemyHero(sentry));
+    }
+
+    // get nearest ally respawn zone cell in map
+    private Cell getNearestResZone(Hero sentry) {
+        Map map = world.getMap();
+        Cell[] resZoneCells = map.getMyRespawnZone();
+        Cell nearestCell = resZoneCells[0]; // FIXME: 2/23/2019
+        for (Cell cell : resZoneCells) {
+            nearestCell = getNearerCellFromHero(sentry, nearestCell, cell);
+        }
+        return nearestCell;
+    }
+}
