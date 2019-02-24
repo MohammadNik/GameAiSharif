@@ -118,8 +118,6 @@ public class BlasterManager implements HeroManager {
                 }
         }
 
-        if(enemyCells.size() ==0)
-            return null;
         return enemyCells;
     }
 
@@ -134,28 +132,25 @@ public class BlasterManager implements HeroManager {
                     world.castAbility(blaster, AbilityName.BLASTER_ATTACK, heroCell);
             return true;
         }
-        else
+        else //ability is not ready DODGE!
             return false;
     }
 
     private ArrayList<Cell> enemiesNexttoEachOther(){
 
         ArrayList<Cell> enemies = new ArrayList<>(opponentHeroCell());
-
-        //enemies.stream().filter(enemy -> world.manhattanDistance(enemy, blaster.getCurrentCell()) == 1);
-
-        ArrayList<Cell> nerxtTo = new ArrayList<>();
+        ArrayList<Cell> nextTo = new ArrayList<>();
         for ( int i = 0; i <enemies.size(); i++) {
             for (int j = i+1; j<enemies.size(); j++) {
                 if (world.manhattanDistance(enemies.get(i), enemies.get(i+j)) == 1) {
-                    nerxtTo.add(enemies.get(i));
-                    nerxtTo.add(enemies.get(i+j));
+                    nextTo.add(enemies.get(i));
+                    nextTo.add(enemies.get(i+j));
                 }
             }
 
         }
 
-        return nerxtTo;
+        return nextTo;
     }
 
     //Find the Best Target to Attack
@@ -178,7 +173,7 @@ public class BlasterManager implements HeroManager {
     private boolean normalAttack(){
 
         ArrayList<Cell> heroCell = new ArrayList<>(opponentHeroCell());
-        if(opponentHeroCell() != null)
+        if(opponentHeroCell().size() != 0)
             for (int i = 0; i< heroCell.size(); i++){
                 if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()){
                     if(Helper.distanceCalculator(heroCell.get(i), blaster.getCurrentCell()) <= 4){ //near enough to attack
