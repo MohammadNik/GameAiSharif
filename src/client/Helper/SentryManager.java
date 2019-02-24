@@ -62,7 +62,6 @@ public class SentryManager implements HeroManager {
             for (Cell cell : cells) {
                 if (world.getOppHero(cell) != null) enemyCells.add(cell);
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
-
         return enemyCells;
     }
 
@@ -231,3 +230,14 @@ public class SentryManager implements HeroManager {
         return visibleHeroes;
     }
 }
+/*ignore this code*/
+//// FIXME: 2/24/2019 so UGLY
+//        for (Cell enemyCell : enemyCells) {
+//                Cell[] cells = MapManager.findCellsOnLine(sentry.getCurrentCell(), enemyCell, world);
+//                for (Cell cell : cells) {
+//                if (cell.isWall()) {
+//                enemyCells.remove(enemyCell);
+//                break;
+//                }
+//                }
+//                }
