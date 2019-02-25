@@ -138,8 +138,8 @@ public class HealerManager implements HeroManager {
     private void moveToNearestSafeCell(){
         // TODO: 2019-02-23 complete me
         try {
-            Cell ECell = Objects.requireNonNull(getEnemyInRange()).getCurrentCell(); // throws an NullPointerException if getCurrentCell was null
-            moveHealerTo(MapManager.findHidingCell(world,healerHero.getCurrentCell(),ECell));
+//            Cell ECell = Objects.requireNonNull(getEnemyInRange()).getCurrentCell(); // throws an NullPointerException if getCurrentCell was null
+            moveHealerTo(MapManager.findNearestHidingCell(healerHero.getCurrentCell(),RANGE,world));
 
         }catch (NullPointerException ignored){}
 
