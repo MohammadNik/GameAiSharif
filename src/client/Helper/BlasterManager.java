@@ -34,7 +34,7 @@ public class BlasterManager implements HeroManager {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
         this.blaster = currentHero;  // WARNING: DON'T CHANGE THIS !!
 
-        /***************************************OFFENCE*****************************************/
+        /******************************************OFFENCE********************************************/
 
         switch (enemiesNexttoEachOther().size()){
             case 2:
@@ -58,7 +58,7 @@ public class BlasterManager implements HeroManager {
 
         }
 
-        /***************************************DODGE*******************************************/
+        /********************************************DODGE**********************************************/
         if(!anyReadyDefAbility())
             defensiveDodge();
         if(world.getAP() < 15)
