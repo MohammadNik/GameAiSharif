@@ -12,68 +12,82 @@ public class MapManager {
 
     static int radius = 2;
 
-    // TODO: 2019-02-23 fix this.
-    // return the best cell for hiding, takes in makeAttemptHideTable()
-    public static Cell findHidingCell(World world, Cell myHeroCell, Cell enemyCell) {
-        // TODO: 2019-02-20 Can you use remaining phasesCount to provide a more efficient solution?
-        //boolean[][] hidingTable = new boolean[radius * 2 + 1][radius * 2 + 1];
-        Cell[][] table = makeAttemptHideTable(myHeroCell,world);
-        Cell choiceCell = table[0][0];
-        int distance = 100;
+    // TODO: 2019-02-25 fix this method so it finds all enemies and acts based on them or a prioritization of them.
+    // returns a Cell in manhattan range that you can hide from enemies (currently one enemy).
+        //finds all enemies that can see myHero.(currently only one enemyHero).
+        // if it can't find any, returns myHero's cell.
+    public static Cell findNearestHidingCell(Cell myHero, int radius, World world) {
+        List<Cell> cellsInRange = findAllCellsInManhattanRange(myHero, radius, world);
+        Hero oppHeroInVision = world.getOppHeroes()[0];
+        Cell hidingCell = myHero;
 
-        for(int i = 0; i < radius * 2 + 1; i++)
-        {
-            for(int j = 0; j < radius * 2 + 1; j++)
-            {
-                if(table[i][j] != null)
-                {
-                    if(world.isInVision(table[i][j], enemyCell))
-                    {
-                        //hidingTable[i][j] = true;
-                        if(world.manhattanDistance((table[i][j]), enemyCell) < distance
-                                && world.manhattanDistance((table[i][j]), enemyCell) != 0)
-                        {
-                            choiceCell = enemyCell;
-                            distance = world.manhattanDistance((table[i][j]), enemyCell);
-                        }
-                    }
-                    else
-                    {
-                        //hidingTable[i][j] = false;
-                    }
-                }
+        for(Hero enemyHero: world.getOppHeroes()) {
+            if(world.isInVision(enemyHero.getCurrentCell(), myHero)) {
+                oppHeroInVision = enemyHero;
+                break;
             }
         }
 
-        return choiceCell;
+        for(Cell cell: cellsInRange) {
+            if(!world.isInVision(oppHeroInVision.getCurrentCell(), cell)) {
+                hidingCell = cell;
+                break;
+            }
+        }
+
+        return hidingCell;
     }
 
-    // returns a table around a designated Cell, mainly used when an enemy is seen and you'd like to hide from it.
-    public static Cell[][] makeAttemptHideTable(Cell curCell, World world) {
+    //an overload of findNearestHidingCell(), myHero is a Hero instead of a cell.
+    public static Cell findNearestHidingCell(Hero myHero, int radius, World world) {
+        return findNearestHidingCell(myHero.getCurrentCell(), radius, world);
+    }
 
-        //character's coordinates may be in a way that we may not be able to make the table well, like 0,0!
-        //SOLVED: ypu don't need to count that in, we simply make our checking area smaller.(instead of i * j, have i * (j - 1) table.
-        int curCellX = curCell.getColumn(),
-                curCellY = curCell.getRow();
+    //an overload of findNearestHidingCell(), takes in one known enemy.
+    public static Cell findNearestHidingCell(Hero myHero, Hero enemyHero, int radius, World world) {
+        List<Cell> cellsInRange = findAllCellsInManhattanRange(myHero.getCurrentCell(), radius, world);
+        Cell hidingCell = myHero.getCurrentCell();
 
-        Cell[][] table = new Cell[radius * 2 + 1][radius * 2 + 1];
+        for(Cell cell: cellsInRange) {
+            if(!world.isInVision(enemyHero.getCurrentCell(), cell)) {
+                hidingCell = cell;
+                break;
+            }
+        }
 
-        for(int i = curCellY - radius; i < curCellY + radius; i++)
-        {
-            for(int j = curCellX - radius; j < curCellX + radius; j++)
-            {
-                if(world.getMap().isInMap(i, j))
-                {
-                    table[i - curCellY + radius][j - curCellX + radius] = world.getMap().getCell(i, j);
-                }
-                else
-                {
-                    table[j][i] = null;
+        return hidingCell;
+    }
+
+    //finds all cells in a range from curCell. returns a sorted list of them(increasing order).
+    public static List<Cell> findAllCellsInManhattanRange(Cell curCell, int range,  World world) {
+
+        List<Cell> inRangeCells = new ArrayList<Cell>();
+
+        for(Cell[] mapCells: world.getMap().getCells()) {
+            for(Cell cell: mapCells) {
+                if(world.manhattanDistance(cell, curCell) <= range) {
+                    inRangeCells.add(0, cell);
                 }
             }
         }
 
-        return table;
+        return sortCellsByManhattanRange(curCell, inRangeCells, world);
+    }
+
+    //Sorts a List<Cell> in increasing order of their manhattan distance from a curCell(center cell).
+    public static List<Cell> sortCellsByManhattanRange(Cell curCell, List<Cell> cells, World world) {
+        for(int i = 0; i < cells.size(); i++) {
+            for(int j = i; j < cells.size(); j++) {
+                if(world.manhattanDistance(curCell, cells.get(i)) > world.manhattanDistance(curCell, cells.get(j))) {
+                    Cell temp;
+                    temp = cells.get(i);
+                    cells.set(i, cells.get(j));
+                    cells.set(j, temp);
+                }
+            }
+        }
+
+        return cells;
     }
 
     // TODO: 2019-02-23 fix this.
