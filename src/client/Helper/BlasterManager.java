@@ -3,6 +3,7 @@ package client.Helper;
 import client.model.*;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class BlasterManager implements HeroManager {
 
         /***************************************OFFENCE*****************************************/
 
-        switch (enemiesNexttoEachOther().length){
+        switch (enemiesNexttoEachOther().size()){
             case 2:
                 normalAttack();
                 break;
@@ -58,7 +59,13 @@ public class BlasterManager implements HeroManager {
         }
 
         /***************************************DODGE*******************************************/
-        // TODO: 2/24/2019 if normal attack or beneficial attack is false, dodge!
+        if(!anyReadyDefAbility())
+            defensiveDodge();
+        if(world.getAP() < 15)
+            defensiveDodge();
+
+        if(enemiesNexttoEachOther().size() >=6 && world.manhattanDistance(blaster.getCurrentCell(), beneficialTarget()) >5)
+            offensiveDodge();
 
     }
 
@@ -105,17 +112,15 @@ public class BlasterManager implements HeroManager {
     /******************************************************************************************************/
 
     //returns an array of hero cells ( if the cell is in vision )
-    private Cell[] opponentHeroCell(){
+    private ArrayList<Cell> opponentHeroCell(){
 
-        Cell[] enemyCells = null;
-        int i = 0;
+        ArrayList<Cell> enemyCells = new ArrayList<>();
         for (Cell[] cells : world.getMap().getCells()) {
             for (Cell cell : cells)
                 if (world.getOppHero(cell) == null)
                     continue;
                 else {
-                    enemyCells[i] = cell;
-                    i++;
+                    enemyCells.add(cell);
                 }
         }
 
@@ -123,48 +128,43 @@ public class BlasterManager implements HeroManager {
     }
 
     //////////////////////////////////////////////////BENEFICIAL////////////////////////////////////////////////////////
+
     //attacking if the opponent heroes are in our ideal position
     //Parameter "heroCell" is beneficialTarget()
-    private boolean beneficialAttack(Cell heroCell){
+    private void beneficialAttack(Cell heroCell){
 
         if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
             if(world.getAP() >= 15)
-                if(Helper.distanceCalculator(heroCell, blaster.getCurrentCell()) <= 4)
+                if(world.manhattanDistance(heroCell, blaster.getCurrentCell()) <= 4)
                     world.castAbility(blaster, AbilityName.BLASTER_ATTACK, heroCell);
-            return true;
         }
-        else
-            return false;
     }
 
-    private Cell[] enemiesNexttoEachOther(){
+    private ArrayList<Cell> enemiesNexttoEachOther(){
 
-        Cell[] enemies = opponentHeroCell();
-        Cell[] Nextto = null;
-        int index = 0;
-        for ( int i = 0; i <enemies.length; i++) {
-            for (int j = i+1; j<enemies.length; j++) {
-                if (world.manhattanDistance(enemies[i], enemies[i + j]) == 1) {
-                    Nextto[index] = enemies[i];
-                    Nextto[index+1] = enemies[i+j];
-                    index +=2;
-
+        ArrayList<Cell> enemies = new ArrayList<>(opponentHeroCell());
+        ArrayList<Cell> nextTo = new ArrayList<>();
+        for ( int i = 0; i <enemies.size(); i++) {
+            for (int j = i+1; j<enemies.size(); j++) {
+                if (world.manhattanDistance(enemies.get(i), enemies.get(j)) == 1) {
+                    nextTo.add(enemies.get(i));
+                    nextTo.add(enemies.get(j));
                 }
             }
 
         }
 
-        return Nextto;
+        return nextTo;
     }
 
     //Find the Best Target to Attack
     private Cell beneficialTarget(){
 
-        Cell[] Nextto = enemiesNexttoEachOther();
-        for(int i = 0; i <Nextto.length; i++){
-            for(int j = i+1; j <Nextto.length; j++){
-                if(Nextto[i] == Nextto[i+j])
-                    return Nextto[i];
+        ArrayList<Cell> nextTo = new ArrayList<>(enemiesNexttoEachOther());
+        for(int i = 0; i <nextTo.size(); i++){
+            for(int j = i+1; j <nextTo.size(); j++){
+                if(nextTo.get(i) == nextTo.get(j))
+                    return nextTo.get(i);
             }
         }
 
@@ -174,29 +174,25 @@ public class BlasterManager implements HeroManager {
     ////////////////////////////////////////////////////NORMAL//////////////////////////////////////////////////////////
 
     //attacking
-    private boolean normalAttack(){
+    private void normalAttack(){
 
-        Cell[] heroCell = opponentHeroCell();
-        if(heroCell != null)
-            for (int i = 0; i< heroCell.length; i++){
+        ArrayList<Cell> heroCell = new ArrayList<>(opponentHeroCell());
+        if(opponentHeroCell().size() != 0)
+            for (int i = 0; i< heroCell.size(); ++i){
                 if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()){
-                    if(Helper.distanceCalculator(heroCell[i], blaster.getCurrentCell()) <= 4){ //near enough to attack
-                        if(world.getOppHero(heroCell[i]).getCurrentHP() <= 20) {//fastest to be killed
-                            fastKilledPriority(heroCell[i]);
-                            return true;
+                    if(world.manhattanDistance(heroCell.get(i), blaster.getCurrentCell()) <= 4){ //near enough to attack
+                        if(world.getOppHero(heroCell.get(i)).getCurrentHP() <= 20) {//fastest to be killed
+                            KillByPriority(heroCell.get(i));
+                        }else {
+                            world.castAbility(world.getOppHero(heroCell.get(i)), AbilityName.BLASTER_ATTACK, heroCell.get(i));
                         }
                     }
 
-                    else if(blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady()) {
-                        world.castAbility(world.getOppHero(heroCell[i]), AbilityName.BLASTER_ATTACK, heroCell[i]); // FIXME: 2/23/2019 more priority
-                        return true;
-                    }
                 }
             }
-        return false; //heroCell is null
     }
     //Attack Fast Killed Enemy by Priority
-    private void fastKilledPriority( Cell enemy ){
+    private void KillByPriority( Cell enemy ){
 
         Cell tempH = null;
         Cell tempB = null;
@@ -226,7 +222,6 @@ public class BlasterManager implements HeroManager {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     //Bombing
     //heroCell is beneficialTarget()
     private boolean bomb(Cell heroCell){
@@ -239,6 +234,37 @@ public class BlasterManager implements HeroManager {
         }
         else
             return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void defensiveDodge(){
+        for (Cell[] cells : world.getMap().getCells()){
+            for (Cell cell : cells){
+                if(cell.isWall() && (world.manhattanDistance(cell, blaster.getCurrentCell()) <=5
+                        && world.manhattanDistance(cell, blaster.getCurrentCell()) >=3)){
+                    world.castAbility(blaster, AbilityName.BLASTER_DODGE, cell);
+                }
+            }
+        }
+
+    }
+
+    private boolean anyReadyDefAbility(){
+
+        if( blaster.getAbility(AbilityName.BLASTER_ATTACK).isReady() || blaster.getAbility(AbilityName.BLASTER_BOMB).isReady())
+            return true;
+        return false;
+
+    }
+
+    private void offensiveDodge(){
+        for (Cell[] cells : world.getMap().getCells()){
+            for (Cell cell : cells){
+                if (world.manhattanDistance(blaster.getCurrentCell(), cell) == 5)
+                    world.castAbility(blaster, AbilityName.BLASTER_DODGE, cell);
+            }
+        }
     }
 
 }

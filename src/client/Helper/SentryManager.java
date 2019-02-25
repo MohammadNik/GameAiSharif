@@ -217,6 +217,7 @@ public class SentryManager implements HeroManager {
         for (Hero hero : getVisibleEnemyHeroes()) {
             if (hero.getCurrentHP() < lowestEnemyHP.getCurrentHP()) lowestEnemyHP = hero;
         }
+
         return lowestEnemyHP.getCurrentCell();
     }
 
