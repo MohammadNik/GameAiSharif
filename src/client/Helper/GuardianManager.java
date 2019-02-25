@@ -10,6 +10,7 @@ import java.util.List;
 
 public class GuardianManager implements HeroManager {
     private World world;
+    private Hero Guardian;
 
 
     @Override
@@ -21,12 +22,20 @@ public class GuardianManager implements HeroManager {
     public void move(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
 
+        currentHero=Guardian;
+        if(!(Guardian.getCurrentCell().isInObjectiveZone())){
+            moveToObjectiveZone(Guardian);
+        }
+        else{
+            moveInObjectiveZone(Guardian);
+        }
 
     }
 
     @Override
     public void takeAction(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
+        action(Guardian);
     }
 
     private void moveToObjectiveZone(Hero Gurdian) {
