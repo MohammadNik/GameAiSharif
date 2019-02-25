@@ -5,7 +5,6 @@ import client.model.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 /** Names:
  *      HP-Name-Convention:
@@ -48,7 +47,9 @@ public class HealerManager implements HeroManager {
 
 //            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
             if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
-            else if (getEnemyInRange() == null) moveToFarestInRangeCellFromEnemy();
+            else if (getEnemyInRange() == null && !Helper.getEnemiesInObjectiveZone(world).isEmpty() ){
+                 moveToFarestInRangeCellFromEnemy();
+            }
 
         }else {
 
@@ -65,13 +66,16 @@ public class HealerManager implements HeroManager {
         this.healerHero = healerHero;
 
         if (isAllHpInRange(HP_H,HP_F)){
-
-            if (getEnemyInRange() != null) takeActionDamageEnemy();
-
+            takeActionDamageEnemy();
         }else {
 
-            if (isLowestHpForMY()) takeActionHealMY();
-            else takeActionHealOT(getLowestHpHero());
+            if (isHealReady()){
+
+                if (isLowestHpForMY()) takeActionHealMY();
+                else takeActionHealOT(getLowestHpHero());
+
+            }else takeActionDamageEnemy();
+
 
         }
     }
@@ -88,12 +92,14 @@ public class HealerManager implements HeroManager {
     }
 
     private void takeActionDamageEnemy(){
-        try {
-            Cell enemyCell = Objects.requireNonNull(getEnemyInRange()).getCurrentCell();
-            if ( Helper.isInRangeOfCell1(enemyCell,healerHero.getCurrentCell(), RANGE) )
-                world.castAbility(healerHero, AbilityName.HEALER_ATTACK, enemyCell);
+        Hero enemyInRange = getEnemyInRange();
+
+        if (enemyInRange == null) return;
+
+            if ( Helper.isInRangeOfCell1(enemyInRange.getCurrentCell(),healerHero.getCurrentCell(), RANGE) )
+                world.castAbility(healerHero, AbilityName.HEALER_ATTACK, enemyInRange.getCurrentCell());
             System.out.println("Damage enemy");
-        }catch (NullPointerException ignored){}
+
     }
 
 
@@ -171,6 +177,11 @@ public class HealerManager implements HeroManager {
     public Hero getLowestHpHero(){
         return Arrays.stream(world.getMyHeroes()).sorted(Comparator.comparing(Hero::getCurrentHP)).findFirst().get();
     }
+
+    private boolean isHealReady(){
+        return healerHero.getAbility(AbilityName.HEALER_HEAL).isReady();
+    }
+
 
     // return nearest Enemy
     private Hero getEnemyInRange(){
