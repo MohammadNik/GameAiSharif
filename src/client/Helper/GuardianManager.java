@@ -22,7 +22,7 @@ public class GuardianManager implements HeroManager {
     public void move(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
 
-        currentHero=Guardian;
+       Guardian = currentHero;
         if(!(Guardian.getCurrentCell().isInObjectiveZone())){
             moveToObjectiveZone(Guardian);
         }
@@ -35,6 +35,7 @@ public class GuardianManager implements HeroManager {
     @Override
     public void takeAction(World world, Hero currentHero) {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
+        Guardian = currentHero;
         action(Guardian);
     }
 
@@ -42,7 +43,8 @@ public class GuardianManager implements HeroManager {
         world.moveHero(Gurdian,world.getPathMoveDirections(Gurdian.getCurrentCell(),Helper.nearestCellFromOZ(world,Gurdian.getCurrentCell()))[0]);
     }
     private void moveInObjectiveZone(Hero Guardian){
-        if(world.getAP()>(world.getCurrentTurn()-1)*14+100){
+        if(world.getMovePhaseNum()<=6)
+        if(world.getAP()>=108){
             if(nearestEnemyInOb(Guardian) != null){
                 world.moveHero(Guardian,world.getPathMoveDirections(Guardian.getCurrentCell(),nearestEnemyInOb(Guardian).getCurrentCell())[0]);
             }
@@ -66,21 +68,30 @@ public class GuardianManager implements HeroManager {
     }
     private void action(Hero Guardian) {
         //Guardian_Fortify
+        int max=0;
+        Hero bestHero=null;
+        List<Hero> heros=Helper.getAllyInRange(world,Guardian,4);
+            for (Hero H : heros) {
+                if(Helper.getEnemiesInRange(world,H,4).size()>max){
+                    max=Helper.getEnemiesInRange(world,H,4).size();
+                    bestHero=H;
+                }
 
+            }
+            if(bestHero!=null)
+                world.castAbility(Guardian,AbilityName.GUARDIAN_FORTIFY,bestHero.getCurrentCell());
 
-           Hero target = Helper.getAllyInRange(world,Guardian,4)
-                    .stream()
-                    .sorted(Comparator.comparing(Hero::getCurrentHP))
-                    .findFirst().get();
+          /* Hero target = Helper.getAllyInRange(world, Guardian, 4)
+                   .stream().min(Comparator.comparing(Hero::getCurrentHP)).orElse(null);
 
            double hpExceed = 25.0/100;
-
-           if (target.getCurrentHP() <= hpExceed*target.getMaxHP()){
-               world.castAbility(Guardian, AbilityName.GUARDIAN_FORTIFY,target.getCurrentCell());
-           }
+            if(target != null)
+                if (target.getCurrentHP() <= hpExceed*target.getMaxHP()){
+                    world.castAbility(Guardian, AbilityName.GUARDIAN_FORTIFY,target.getCurrentCell());
+                }*/
 
         //Guardian_Dodge
-        if(!(Helper.cellInRangeOfSpot(world,Guardian.getCurrentCell(),4).isEmpty())){
+        if(Helper.cellInRangeOfSpot(world,Guardian.getCurrentCell(),4).size()>2){
             world.castAbility(Guardian,AbilityName.GUARDIAN_DODGE,Guardian.getCurrentCell());
         }
         //Guardian_Attac
@@ -110,5 +121,6 @@ public class GuardianManager implements HeroManager {
         }
         return null;
     }
+
 }
 
