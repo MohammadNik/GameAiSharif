@@ -12,7 +12,7 @@ public class AI
 {
 
     private  int index = 0;
-    private HeroName[] heroConstants = {HeroName.BLASTER,HeroName.BLASTER,HeroName.BLASTER,HeroName.BLASTER};
+    private HeroName[] heroConstants = {HeroName.GUARDIAN,HeroName.GUARDIAN,HeroName.GUARDIAN,HeroName.GUARDIAN};
     private HealerManager healerManager;
     private GuardianManager guardianManager;
     private SentryManager sentryManager;
