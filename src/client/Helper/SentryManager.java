@@ -62,6 +62,9 @@ public class SentryManager implements HeroManager {
             for (Cell cell : cells) {
                 if (world.getOppHero(cell) != null) enemyCells.add(cell);
             } // FIXME: 2/21/2019 also make it a method for multi-use if it's possible
+
+        enemyCells = getOnlyPassableCells(enemyCells);
+
         return enemyCells;
     }
 
@@ -228,6 +231,17 @@ public class SentryManager implements HeroManager {
             visibleHeroes.add(world.getOppHero(cell));
         }
         return visibleHeroes;
+    }
+
+    //
+    private ArrayList<Cell> getOnlyPassableCells(ArrayList<Cell> cells) {
+        cells.forEach(cell -> {
+            Cell[] cellsOnLine = MapManager.findCellsOnLine(sentry.getCurrentCell(), cell, world);
+            for (Cell cellOnLine : cellsOnLine) {
+                if (cellOnLine.isWall()) cells.remove(cell);
+            }
+        });
+        return cells;
     }
 }
 /*ignore this code*/
