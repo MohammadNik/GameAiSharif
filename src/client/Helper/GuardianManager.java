@@ -32,10 +32,27 @@ public class GuardianManager implements HeroManager {
     private void moveToObjectiveZone(Hero Gurdian) {
         world.moveHero(Gurdian,world.getPathMoveDirections(Gurdian.getCurrentCell(),Helper.nearestCellFromOZ(world,Gurdian.getCurrentCell()))[0]);
     }
-    private void moveInObjectiveZone(){
-        if(world.getAP()>(world.getCurrentTurn()-1)*14){
+    private void moveInObjectiveZone(Hero Guardian){
+        if(world.getAP()>(world.getCurrentTurn()-1)*14+100){
+            if(nearestEnemyInOb(Guardian) != null){
+                world.moveHero(Guardian,world.getPathMoveDirections(Guardian.getCurrentCell(),nearestEnemyInOb(Guardian).getCurrentCell())[0]);
+            }
 
         }
+
+    }
+    private Hero nearestEnemyInOb(Hero Guardian ){
+        Hero nearestEnemy=null;
+        int min=30;
+        List<Hero> enemies=new ArrayList<>();
+        enemies=Helper.getEnemiesInObjectiveZone(world);
+        for(Hero En : enemies){
+            if(world.manhattanDistance(Guardian.getCurrentCell(),En.getCurrentCell())<min){
+                nearestEnemy=En;
+                min=world.manhattanDistance(Guardian.getCurrentCell(),En.getCurrentCell());
+            }
+        }
+        return nearestEnemy;
 
     }
     private void action(Hero Guardian) {
@@ -64,20 +81,23 @@ public class GuardianManager implements HeroManager {
 
     }
     private Cell Attac(Hero Guardian) {
-        int max=0;
+        int max=0,x,y,temp=0;
         Hero theBest = null;
-        int temp=0;
         List<Hero> enemies = new ArrayList<>();
         enemies = Helper.getEnemiesInRange(world, Guardian, 1);
         for(Hero enemy: enemies){
            temp= Helper.getEnemiesInRange(world, enemy, 1).size();
-           if(temp>max)
-               theBest=enemy;
+           if(temp>max) {
+               theBest = enemy;
+               max=temp;
+           }
         }
         if(theBest != null)
             return theBest.getCurrentCell();
         for(Hero enemy: Helper.getEnemiesInRange(world,Guardian,2) ) {
-            return enemy.getCurrentCell();
+            x = (enemy.getCurrentCell().getRow() + Guardian.getCurrentCell().getRow()) / 2;
+            y = (enemy.getCurrentCell().getColumn() + Guardian.getCurrentCell().getColumn()) / 2;
+            return world.getMap().getCell(x, y);
         }
         return null;
     }
