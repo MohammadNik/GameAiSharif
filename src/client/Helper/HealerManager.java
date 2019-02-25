@@ -2,7 +2,6 @@ package client.Helper;
 
 import client.model.*;
 
-import javax.print.attribute.standard.MediaSize;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -83,13 +82,18 @@ public class HealerManager implements HeroManager {
     }
 
     private void takeActionHealOT(Hero OTHero){
+        if ( Helper.isInRangeOfCell1(OTHero.getCurrentCell(),healerHero.getCurrentCell(),RANGE) )
         world.castAbility(healerHero,AbilityName.HEALER_HEAL,OTHero.getCurrentCell());
         System.out.println(String.format("Heal %d name %s",OTHero.getId(), OTHero.getName()));
     }
 
     private void takeActionDamageEnemy(){
-        world.castAbility(healerHero, AbilityName.HEALER_ATTACK, getEnemyInRange().getCurrentCell());
-        System.out.println("Damage enemy");
+        try {
+            Cell enemyCell = Objects.requireNonNull(getEnemyInRange()).getCurrentCell();
+            if ( Helper.isInRangeOfCell1(enemyCell,healerHero.getCurrentCell(), RANGE) )
+                world.castAbility(healerHero, AbilityName.HEALER_ATTACK, enemyCell);
+            System.out.println("Damage enemy");
+        }catch (NullPointerException ignored){}
     }
 
 
