@@ -23,7 +23,8 @@ public class BlasterManager implements HeroManager {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
         this.blaster = currentHero;  // WARNING: DON'T CHANGE THIS !!
 
-        moveToObjectiveZone();
+        if(!blaster.getCurrentCell().isInObjectiveZone())
+            moveToObjectiveZone();
 
         //entrenchment(currentHero);
 
@@ -75,6 +76,7 @@ public class BlasterManager implements HeroManager {
     /****************************************************************************************************/
 
     private void moveToObjectiveZone() {
+
         for (Direction dir :
                 world.getPathMoveDirections(blaster.getCurrentCell(), Helper.nearestCellFromOZ(world, blaster.getCurrentCell()))) {
             world.moveHero(blaster, dir);
@@ -100,9 +102,27 @@ public class BlasterManager implements HeroManager {
         return minWallDisCell;
     }
 
+    private Cell wallInObjectiveZone(){
+        for (Cell[] cells : world.getMap().getCells()){
+            for(Cell cell : cells){
+                if(cell.isInObjectiveZone() && cell.isWall())
+                    return cell;
+            }
+        }
+        return null;
+    }
+
+    private Direction[] findTrenchCell(){
+
+        int directionLengh = world.manhattanDistance(blaster.getCurrentCell(), wallInObjectiveZone());
+        Direction dir[] = world.getPathMoveDirections(blaster.getCurrentCell(), wallInObjectiveZone());
+        return dir[] -
+
+    }
+
     //moves the blaster to the trench
     private void entrenchment() { // FIXME: 2/22/2019 find more appropriate trench cells and the new STRATEGY!
-        Cell trench = nearestWalltoOZ();
+        Cell trench = wallInObjectiveZone();
         world.moveHero(blaster, Helper.nearestToCell(world, trench)); // FIXME: 2/22/2019 move to the bottom row of trench, not itself
 
     }
@@ -153,7 +173,6 @@ public class BlasterManager implements HeroManager {
             }
 
         }
-
         return nextTo;
     }
 
