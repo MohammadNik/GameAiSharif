@@ -121,7 +121,7 @@ public class Helper {
     }
 
 
-    public static BinaryOperator<Cell> getCellReduce(Cell heroCell){
+    public static BinaryOperator<Cell> getNearestCellReduce(Cell heroCell){
         return (result,each)->{
             boolean isNearer = Helper.distanceCalculator(heroCell,each) <= Helper.distanceCalculator(heroCell,result);
             return isNearer ? each : result;

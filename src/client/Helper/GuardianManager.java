@@ -2,6 +2,8 @@ package client.Helper;
 
 import client.model.*;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class GuardianManager implements HeroManager {
@@ -27,8 +29,8 @@ public class GuardianManager implements HeroManager {
         if (!getCurrentCell().isInObjectiveZone()){
             moveToObjectiveZone();
         }else {
-            Hero lowestHpHero = HealerManager.getLowestHpHero();
-            if (HealerManager.isHpInRange(lowestHpHero,HealerManager.HP_Z,HealerManager.HP_L) && (lowestHpHero.getId() != guardianHero.getId()) ){
+            Hero lowestHpHero = getLowestHpHero();
+            if ( !Helper.isInRangeOfCell1(lowestHpHero.getCurrentCell(),guardianHero.getCurrentCell(),RANGE_FORTIFY) && HealerManager.isHpInRange(lowestHpHero,HealerManager.HP_Z,HealerManager.HP_L) && (lowestHpHero.getId() != guardianHero.getId()) ){
                 moveToRangeOfLowestHpHero(lowestHpHero);
             }else {
                 handleMovingInObjectiveZone();
@@ -43,7 +45,7 @@ public class GuardianManager implements HeroManager {
         this.world = world;
         this.guardianHero = currentHero;
 
-        Hero lowestHpHero = HealerManager.getLowestHpHero();
+        Hero lowestHpHero = getLowestHpHero();
 
         if (Helper.isInRangeOfCell1(guardianHero.getCurrentCell(),lowestHpHero.getCurrentCell(),RANGE_FORTIFY) && isFortifyReady()){
             takeActionFortify(lowestHpHero);
@@ -75,13 +77,15 @@ public class GuardianManager implements HeroManager {
 
         Cell nearestEnemyCell = enemies.parallelStream()
                 .map(Hero::getCurrentCell)
-                .reduce(Helper.getCellReduce(guardianHero.getCurrentCell())).orElse(null);
+                .reduce(Helper.getNearestCellReduce(guardianHero.getCurrentCell())).orElse(null);
 
-        if (nearestEnemyCell == null) return;
+        if (nearestEnemyCell == null || Helper.isInRangeOfCell1(guardianHero.getCurrentCell(),nearestEnemyCell,RANGE_ATTACK)) return;
+
 
         Cell nearestCellToEnemy = Helper.cellInRangeOfSpot(world,nearestEnemyCell,RANGE_ATTACK)
                 .parallelStream()
-                .reduce(Helper.getCellReduce(guardianHero.getCurrentCell())).orElse(null);
+                .filter(cell -> world.getMyHero(cell) == null)
+                .reduce(Helper.getNearestCellReduce(guardianHero.getCurrentCell())).orElse(null);
 
         if (nearestCellToEnemy == null) return;
 
@@ -100,7 +104,8 @@ public class GuardianManager implements HeroManager {
     private void moveToRangeOfLowestHpHero(Hero lowestHpHero){
         Cell target = Helper.cellInRangeOfSpot(world,lowestHpHero.getCurrentCell(),RANGE_FORTIFY)
                 .parallelStream()
-                .reduce(Helper.getCellReduce(guardianHero.getCurrentCell()))
+                .filter(cell -> world.getMyHero(cell) == null)
+                .reduce(Helper.getNearestCellReduce(guardianHero.getCurrentCell()))
                 .orElse(null);
 
         if (target == null) return;
@@ -120,5 +125,9 @@ public class GuardianManager implements HeroManager {
 
     private Cell getCurrentCell(){
         return guardianHero.getCurrentCell();
+    }
+
+    public Hero getLowestHpHero(){
+        return Arrays.stream(world.getMyHeroes()).min(Comparator.comparing(Hero::getCurrentHP)).orElse(null);
     }
 }
