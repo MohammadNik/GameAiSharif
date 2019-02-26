@@ -46,8 +46,7 @@ public class SentryManager implements HeroManager {
     }
 
     private boolean stayInPosition() {
-        if (getBestTargetRay() != null && isReady(sentry.getAbility(AbilityName.SENTRY_RAY))) return true;
-        return false;
+        return (getBestTargetRay() != null) && isReady(sentry.getAbility(AbilityName.SENTRY_RAY));
     }
     /************************************move sentry to attack position "methods"**************************************/
     private ArrayList<Cell> getVisibleEnemyHeroesCells() {
