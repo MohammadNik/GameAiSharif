@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 public class Helper {
@@ -59,6 +60,10 @@ public class Helper {
 
     }
 
+    public static boolean isInRangeOfCell1(Cell cell1, Cell cell2, int range){
+        return distanceCalculator(cell1,cell2) <= range;
+    }
+
     // return nearest cell from objective zone to current cell
     public static Cell nearestCellFromOZ(World world,Cell cell){
        return Arrays.stream(world.getMap().getObjectiveZone())
@@ -89,18 +94,18 @@ public class Helper {
     public static List<Hero> getEnemiesInRange(World world,Hero hero, int RANGE){
 
         return cellInRangeOfSpot(world,hero.getCurrentCell(),RANGE)
-                .stream()
+                .parallelStream()
                 .filter( cell -> world.getMyHero(cell) == null)
                 .filter( cell -> world.getOppHero(cell) != null)
                 .map(world::getOppHero)
                 .collect(Collectors.toList());
     }
 
-    // return nearest Enemy
+    // return nearest allies
     public static List<Hero> getAllyInRange(World world,Hero hero, int RANGE){
 
         return cellInRangeOfSpot(world,hero.getCurrentCell(),RANGE)
-                .stream()
+                .parallelStream()
                 .filter( cell -> world.getMyHero(cell) != null)
                 .filter( cell -> world.getOppHero(cell) == null)
                 .map(world::getOppHero)
@@ -109,11 +114,19 @@ public class Helper {
 
     public static List<Hero> getEnemiesInObjectiveZone(World world){
         return Arrays.stream(world.getMap().getObjectiveZone())
+                .parallel()
                 .filter(cell -> !cell.isWall())
                 .map(world::getOppHero)
                 .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+
+    public static BinaryOperator<Cell> getCellReduce(Cell heroCell){
+        return (result,each)->{
+            boolean isNearer = Helper.distanceCalculator(heroCell,each) <= Helper.distanceCalculator(heroCell,result);
+            return isNearer ? each : result;
+        };
+    }
 
 
 }
