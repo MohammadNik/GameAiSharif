@@ -27,57 +27,57 @@ public class HealerManager implements HeroManager {
 
     public static final int RANGE = 4;
 
-    private World world;
+    private static World world;
     private Hero healerHero;
 
 
     @Override
     public void preProcess(World world) {
-        this.world = world; // WARNING: DON'T CHANGE THIS !!
-
-
+        HealerManager.world = world; // WARNING: DON'T CHANGE THIS !!
     }
 
     @Override
     public void move(World world,Hero healerHero) {
-        this.world = world; // WARNING: DON'T CHANGE THIS !!
+        HealerManager.world = world; // WARNING: DON'T CHANGE THIS !!
         this.healerHero = healerHero;
 
         if (isAllHpInRange(HP_H,HP_F)){
 
-//            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
-            if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
-            else if (getEnemyInRange() == null && !Helper.getEnemiesInObjectiveZone(world).isEmpty() ){
-                 moveToFarestInRangeCellFromEnemy();
+            if (!getHeroCell().isInObjectiveZone()){
+                moveToObjectiveZone();
+            }else {
+                // we are in objective zone
+                handleEnemyInObjectiveZone();
             }
-
         }else {
-
-            if (isLowestHpForMY() && isHpInRange(healerHero,HP_Z,HP_L)) moveToNearestSafeCell();
-            else if (isHpInRange(getLowestHpHero(),HP_Z,HP_M)) moveToLowestHpHero();
-
+            if (isLowestHpForMY()){
+                if (isHpInRange(healerHero,HP_Z,HP_M)){ moveToNearestSafeCell(); }
+            }else{
+                if (isHpInRange(getLowestHpHero(),HP_Z,HP_M)) { moveToLowestHpHero(); }
+            }
         }
 
     }
 
     @Override
     public void takeAction(World world,Hero healerHero) {
-        this.world = world; // WARNING: DON'T CHANGE THIS !!
+        HealerManager.world = world; // WARNING: DON'T CHANGE THIS !!
         this.healerHero = healerHero;
 
-        if (isAllHpInRange(HP_H,HP_F)){
+
+        if (isAllHpInRange(HP_F,HP_F)){
             takeActionDamageEnemy();
         }else {
 
             if (isHealReady()){
-
                 if (isLowestHpForMY()) takeActionHealMY();
                 else takeActionHealOT(getLowestHpHero());
-
-            }else takeActionDamageEnemy();
-
+            }else {
+                takeActionDamageEnemy();
+            }
 
         }
+
     }
 
     private void takeActionHealMY(){
@@ -94,7 +94,7 @@ public class HealerManager implements HeroManager {
     private void takeActionDamageEnemy(){
         Hero enemyInRange = getEnemyInRange();
 
-        if (enemyInRange == null) return;
+        if (enemyInRange == null || !isAttackReady()) return;
 
             if ( Helper.isInRangeOfCell1(enemyInRange.getCurrentCell(),healerHero.getCurrentCell(), RANGE) )
                 world.castAbility(healerHero, AbilityName.HEALER_ATTACK, enemyInRange.getCurrentCell());
@@ -102,58 +102,49 @@ public class HealerManager implements HeroManager {
 
     }
 
-
-    private void moveToFarestInRangeCellFromEnemy(){
+    private void handleEnemyInObjectiveZone(){
         List<Hero> enemies = Helper.getEnemiesInObjectiveZone(world);
 
         if (enemies.isEmpty()) return;
 
-        Hero nearestEnemy = enemies.stream()
-                .reduce((result,eachEnemy)->{
-                    boolean isEachEnemyNearer = Helper.distanceCalculator(healerHero.getCurrentCell(),eachEnemy.getCurrentCell()) <=
-                                                Helper.distanceCalculator(healerHero.getCurrentCell(),result.getCurrentCell());
+        Cell nearestEnemy = enemies.parallelStream()
+                .map(Hero::getCurrentCell)
+                .reduce(Helper.getNearestCellReduce(healerHero.getCurrentCell())).orElse(null);
 
-                    return isEachEnemyNearer ? eachEnemy : result;
-                }).get();
+        if ( nearestEnemy == null || Helper.isInRangeOfCell1(healerHero.getCurrentCell(),nearestEnemy,RANGE)) return;
 
-        Cell farestCellInRangeOfNearestEnemy = Helper.cellInRangeOfSpot(world,nearestEnemy.getCurrentCell(),RANGE)
+        Cell farCellFromEnemy = Helper.cellInRangeOfSpot(world,nearestEnemy,RANGE)
                 .stream()
                 .filter(cell -> !cell.isWall())
                 .filter(cell -> world.getMyHero(cell) == null)
-                .reduce((result,eachCell)->{
-                    boolean isEachCellNearer = Helper.distanceCalculator(healerHero.getCurrentCell(),eachCell) <= Helper.distanceCalculator(healerHero.getCurrentCell(),result);
+                .reduce(Helper.getNearestCellReduce(healerHero.getCurrentCell())).orElse(null);
 
-                    return isEachCellNearer ? eachCell : result;
-                }).orElse(null);
+        if (farCellFromEnemy == null) return;
 
-        if (farestCellInRangeOfNearestEnemy == null) return;
-
-        moveHealerTo(farestCellInRangeOfNearestEnemy);
+        moveHealerTo(farCellFromEnemy);
     }
     // ~~
     private void moveToLowestHpHero(){
-        // TODO: 2019-02-23 complete me
-        Cell hCell = healerHero.getCurrentCell();
          Cell cell =Helper.cellInRangeOfSpot(world,getCellOfLowestHpHero(),4)
                  .stream()
-                 .reduce( (result,eachCell)-> {
-                     if ( Helper.distanceCalculator(hCell,eachCell) <= Helper.distanceCalculator(hCell,result) ) return eachCell;
-                     else return result;
-                 }).orElse(null);
+                 .filter(cell1 -> world.getMyHero(cell1) == null)
+                 .reduce(Helper.getNearestCellReduce(healerHero.getCurrentCell())).orElse(null);
 
          moveHealerTo(cell);
+
+        System.out.println("Move to lowest hp hero");
 
     }
     // ~~
     private void moveToNearestSafeCell(){
-        // TODO: 2019-02-23 complete me
         try {
-//            Cell ECell = Objects.requireNonNull(getEnemyInRange()).getCurrentCell(); // throws an NullPointerException if getCurrentCell was null
             moveHealerTo(MapManager.findNearestHidingCell(healerHero.getCurrentCell(),RANGE,world));
 
         }catch (NullPointerException ignored){}
 
         System.out.println("moveToNearestSafeCell");
+
+
     }
     // ~~
     private void moveToObjectiveZone(){
@@ -175,11 +166,15 @@ public class HealerManager implements HeroManager {
     }
 
     public Hero getLowestHpHero(){
-        return Arrays.stream(world.getMyHeroes()).sorted(Comparator.comparing(Hero::getCurrentHP)).findFirst().get();
+        return Arrays.stream(world.getMyHeroes()).min(Comparator.comparing(Hero::getCurrentHP)).orElse(null);
     }
 
     private boolean isHealReady(){
         return healerHero.getAbility(AbilityName.HEALER_HEAL).isReady();
+    }
+
+    private boolean isAttackReady(){
+        return healerHero.getAbility(AbilityName.HEALER_ATTACK).isReady();
     }
 
 
@@ -200,7 +195,7 @@ public class HealerManager implements HeroManager {
         return true;
     }
 
-    private boolean isHpInRange(Hero hero, double startOfRange, double endOfRange){
+    public static boolean isHpInRange(Hero hero, double startOfRange, double endOfRange){
         boolean startCondition = HCH(hero) >= HMH(hero)*startOfRange;
 
         // dont include zero in range
@@ -210,12 +205,16 @@ public class HealerManager implements HeroManager {
     }
     // ~~
     // hero max hp
-    private int HMH(Hero hero){
+    private static int HMH(Hero hero){
         return hero.getMaxHP();
     }
     // ~~
     // hero current hp
-    private int HCH(Hero hero){
+    private static int HCH(Hero hero){
         return hero.getCurrentHP();
+    }
+
+    private Cell getHeroCell() {
+        return healerHero.getCurrentCell();
     }
 }
