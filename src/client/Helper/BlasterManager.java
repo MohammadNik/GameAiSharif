@@ -4,6 +4,7 @@ import client.model.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,9 +24,11 @@ public class BlasterManager implements HeroManager {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
         this.blaster = currentHero;  // WARNING: DON'T CHANGE THIS !!
 
-        moveToObjectiveZone();
-
-        //entrenchment(currentHero);
+        if(wallInObjectiveZone() != null){
+            entrenchment(1);
+        }else {
+            entrenchment(0);
+        }
 
     }
 
@@ -34,7 +37,7 @@ public class BlasterManager implements HeroManager {
         this.world = world; // WARNING: DON'T CHANGE THIS !!
         this.blaster = currentHero;  // WARNING: DON'T CHANGE THIS !!
 
-        /***************************************OFFENCE*****************************************/
+        /******************************************OFFENCE********************************************/
 
         switch (enemiesNexttoEachOther().size()){
             case 2:
@@ -58,7 +61,7 @@ public class BlasterManager implements HeroManager {
 
         }
 
-        /***************************************DODGE*******************************************/
+        /********************************************DODGE**********************************************/
         if(!anyReadyDefAbility())
             defensiveDodge();
         if(world.getAP() < 15)
@@ -75,12 +78,12 @@ public class BlasterManager implements HeroManager {
     /****************************************************************************************************/
 
     private void moveToObjectiveZone() {
+
         for (Direction dir :
                 world.getPathMoveDirections(blaster.getCurrentCell(), Helper.nearestCellFromOZ(world, blaster.getCurrentCell()))) {
             world.moveHero(blaster, dir);
         }
     }
-
 
     //returns the nearest wall cell from the nearest OZ
     private Cell nearestWalltoOZ() {
@@ -90,20 +93,54 @@ public class BlasterManager implements HeroManager {
         for (Cell[] cells : world.getMap().getCells()) {
             for (Cell cell : cells) {
                 if (cell.isWall()) {
-                    if (Helper.distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell)) <= minWallDis)
-                        minWallDis = Helper.distanceCalculator(cell, Helper.nearestCellFromOZ(world, cell));
-                    minWallDisCell = cell;
+                    if (world.manhattanDistance(blaster.getCurrentCell(), cell) <= minWallDis) {
+                        minWallDis = world.manhattanDistance(blaster.getCurrentCell(), cell);
+                        minWallDisCell = cell;
+                    }
                 }
             }
         }
 
-        return minWallDisCell;
+        return minWallDisCell; //nearest wall cell
+    }
+
+    private Cell wallInObjectiveZone(){
+        for (Cell[] cells : world.getMap().getCells()){
+            for(Cell cell : cells){
+                if(cell.isInObjectiveZone() && cell.isWall())
+                    return cell;
+            }
+        }
+        return null;
+    }
+
+    private Direction[] findTrenchCellPath(int state){
+
+        Direction[] dir;
+        if(state == 1) {
+            dir = world.getPathMoveDirections(blaster.getCurrentCell(), wallInObjectiveZone());
+            Arrays.stream(dir).limit(dir.length); //delete the last direction in array dir
+
+        }else {
+            dir = world.getPathMoveDirections(blaster.getCurrentCell(), nearestWalltoOZ());
+            Arrays.stream(dir).limit(dir.length); //delete the last direction in array dir
+        }
+
+        return dir;
     }
 
     //moves the blaster to the trench
-    private void entrenchment() { // FIXME: 2/22/2019 find more appropriate trench cells and the new STRATEGY!
-        Cell trench = nearestWalltoOZ();
-        world.moveHero(blaster, Helper.nearestToCell(world, trench)); // FIXME: 2/22/2019 move to the bottom row of trench, not itself
+    private void entrenchment(int state) {
+        //Cell trench = wallInObjectiveZone();
+        if( state == 1) {  //wall is in OZ
+            for (Direction dir : findTrenchCellPath(1)) {
+                world.moveHero(blaster, dir);
+            }
+        }else {
+            for (Direction dir : findTrenchCellPath(0)) {
+                world.moveHero(blaster, dir);
+            }
+        }
 
     }
 
@@ -153,12 +190,11 @@ public class BlasterManager implements HeroManager {
             }
 
         }
-
         return nextTo;
     }
 
     //Find the Best Target to Attack
-    private Cell beneficialTarget(){
+    private Cell  beneficialTarget(){
 
         ArrayList<Cell> nextTo = new ArrayList<>(enemiesNexttoEachOther());
         for(int i = 0; i <nextTo.size(); i++){
