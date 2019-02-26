@@ -23,7 +23,7 @@ public class MapManager {
         }
 
         List<Cell> cellsNotInEnemyRange = allCells.parallelStream().filter(cell -> !world.isInVision(oppHero, cell)).collect(Collectors.toList());
-        return cellsNotInEnemyRange.parallelStream().reduce(Helper.getCellReduce(myHero)).get();
+        return cellsNotInEnemyRange.parallelStream().reduce(Helper.getNearestCellReduce(myHero)).get();
     }
 
     //an overload of previous method so you could only send heroes instead of cells.
