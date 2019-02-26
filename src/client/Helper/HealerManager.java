@@ -41,19 +41,20 @@ public class HealerManager implements HeroManager {
         HealerManager.world = world; // WARNING: DON'T CHANGE THIS !!
         this.healerHero = healerHero;
 
-        if (isAllHpInRange(HP_M,HP_F)){
+        if (isAllHpInRange(HP_H,HP_F)){
 
-//            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
-            if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
-            else if (getEnemyInRange() == null && !Helper.getEnemiesInObjectiveZone(world).isEmpty() ){
-                 moveToFaresInRangeCellFromEnemy();
+            if (!getHeroCell().isInObjectiveZone()){
+                moveToObjectiveZone();
+            }else {
+                // we are in objective zone
+                handleEnemyInObjectiveZone();
             }
-
         }else {
-
-            if (isLowestHpForMY() && isHpInRange(healerHero,HP_Z,HP_L)) moveToNearestSafeCell();
-            else if (isHpInRange(getLowestHpHero(),HP_Z,HP_M)) moveToLowestHpHero();
-
+            if (isLowestHpForMY()){
+                if (isHpInRange(healerHero,HP_Z,HP_M)){ moveToNearestSafeCell(); }
+            }else{
+                if (isHpInRange(getLowestHpHero(),HP_Z,HP_M)) { moveToLowestHpHero(); }
+            }
         }
 
     }
@@ -63,19 +64,20 @@ public class HealerManager implements HeroManager {
         HealerManager.world = world; // WARNING: DON'T CHANGE THIS !!
         this.healerHero = healerHero;
 
-        if (isAllHpInRange(HP_H,HP_F)){
+
+        if (isAllHpInRange(HP_F,HP_F)){
             takeActionDamageEnemy();
         }else {
 
             if (isHealReady()){
-
                 if (isLowestHpForMY()) takeActionHealMY();
                 else takeActionHealOT(getLowestHpHero());
-
-            }else takeActionDamageEnemy();
-
+            }else {
+                takeActionDamageEnemy();
+            }
 
         }
+
     }
 
     private void takeActionHealMY(){
@@ -92,7 +94,7 @@ public class HealerManager implements HeroManager {
     private void takeActionDamageEnemy(){
         Hero enemyInRange = getEnemyInRange();
 
-        if (enemyInRange == null) return;
+        if (enemyInRange == null || !isAttackReady()) return;
 
             if ( Helper.isInRangeOfCell1(enemyInRange.getCurrentCell(),healerHero.getCurrentCell(), RANGE) )
                 world.castAbility(healerHero, AbilityName.HEALER_ATTACK, enemyInRange.getCurrentCell());
@@ -100,33 +102,33 @@ public class HealerManager implements HeroManager {
 
     }
 
-    private void moveToFaresInRangeCellFromEnemy(){
+    private void handleEnemyInObjectiveZone(){
         List<Hero> enemies = Helper.getEnemiesInObjectiveZone(world);
 
         if (enemies.isEmpty()) return;
 
-        Cell nearestEnemy = enemies.stream()
+        Cell nearestEnemy = enemies.parallelStream()
                 .map(Hero::getCurrentCell)
-                .reduce(Helper.getCellReduce(healerHero.getCurrentCell())).orElse(null);
+                .reduce(Helper.getNearestCellReduce(healerHero.getCurrentCell())).orElse(null);
 
         if ( nearestEnemy == null || Helper.isInRangeOfCell1(healerHero.getCurrentCell(),nearestEnemy,RANGE)) return;
 
-        Cell farestCellInRangeOfNearestEnemy = Helper.cellInRangeOfSpot(world,nearestEnemy,RANGE)
+        Cell farCellFromEnemy = Helper.cellInRangeOfSpot(world,nearestEnemy,RANGE)
                 .stream()
                 .filter(cell -> !cell.isWall())
                 .filter(cell -> world.getMyHero(cell) == null)
-                .reduce(Helper.getCellReduce(healerHero.getCurrentCell())).orElse(null);
+                .reduce(Helper.getNearestCellReduce(healerHero.getCurrentCell())).orElse(null);
 
-        if (farestCellInRangeOfNearestEnemy == null) return;
+        if (farCellFromEnemy == null) return;
 
-        moveHealerTo(farestCellInRangeOfNearestEnemy);
+        moveHealerTo(farCellFromEnemy);
     }
     // ~~
     private void moveToLowestHpHero(){
          Cell cell =Helper.cellInRangeOfSpot(world,getCellOfLowestHpHero(),4)
                  .stream()
                  .filter(cell1 -> world.getMyHero(cell1) == null)
-                 .reduce(Helper.getCellReduce(healerHero.getCurrentCell())).orElse(null);
+                 .reduce(Helper.getNearestCellReduce(healerHero.getCurrentCell())).orElse(null);
 
          moveHealerTo(cell);
 
@@ -171,6 +173,10 @@ public class HealerManager implements HeroManager {
         return healerHero.getAbility(AbilityName.HEALER_HEAL).isReady();
     }
 
+    private boolean isAttackReady(){
+        return healerHero.getAbility(AbilityName.HEALER_ATTACK).isReady();
+    }
+
 
     // return nearest Enemy
     private Hero getEnemyInRange(){
@@ -206,5 +212,9 @@ public class HealerManager implements HeroManager {
     // hero current hp
     private static int HCH(Hero hero){
         return hero.getCurrentHP();
+    }
+
+    private Cell getHeroCell() {
+        return healerHero.getCurrentCell();
     }
 }
