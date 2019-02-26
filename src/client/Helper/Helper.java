@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 public class Helper {
@@ -119,6 +120,13 @@ public class Helper {
                 .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+
+    public static BinaryOperator<Cell> getCellReduce(Cell heroCell){
+        return (result,each)->{
+            boolean isNearer = Helper.distanceCalculator(heroCell,each) <= Helper.distanceCalculator(heroCell,result);
+            return isNearer ? each : result;
+        };
+    }
 
 
 }
