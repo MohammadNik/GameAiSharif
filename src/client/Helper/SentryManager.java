@@ -18,7 +18,8 @@ public class SentryManager implements HeroManager {
     public void move(World world, Hero currentHero) {
         this.world = world;
         this.sentry = currentHero;
-        if (moveToAttackPosition()) System.out.println("sentry attack move");
+        if (stayInPosition()) System.out.println("sentry stay");
+        else if (moveToAttackPosition()) System.out.println("sentry attack move");
         else if (moveToObjectiveZone()) System.out.println("sentry objective move");
     }
 
@@ -44,6 +45,10 @@ public class SentryManager implements HeroManager {
         }
     }
 
+    private boolean stayInPosition() {
+        if (getBestTargetRay() != null && isReady(sentry.getAbility(AbilityName.SENTRY_RAY))) return true;
+        return false;
+    }
     /************************************move sentry to attack position "methods"**************************************/
     private ArrayList<Cell> getVisibleEnemyHeroesCells() {
         return Arrays.stream(world.getMap().getCells()).flatMap(Arrays::stream)
