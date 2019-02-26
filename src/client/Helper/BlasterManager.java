@@ -119,11 +119,11 @@ public class BlasterManager implements HeroManager {
         Direction[] dir;
         if(state == 1) {
             dir = world.getPathMoveDirections(blaster.getCurrentCell(), wallInObjectiveZone());
-            Arrays.stream(dir).limit(dir.length); //delete the last direction in array dir
+            Arrays.stream(dir).limit(dir.length-1).toArray(); //delete the last direction in array dir
 
         }else {
             dir = world.getPathMoveDirections(blaster.getCurrentCell(), nearestWalltoOZ());
-            Arrays.stream(dir).limit(dir.length); //delete the last direction in array dir
+            Arrays.stream(dir).limit(dir.length-1).toArray(); //delete the last direction in array dir
         }
 
         return dir;
@@ -132,7 +132,7 @@ public class BlasterManager implements HeroManager {
     //moves the blaster to the trench
     private void entrenchment(int state) {
         //Cell trench = wallInObjectiveZone();
-        if( state == 1) {  //wall is in OZ
+        /*if( state == 1) {  //wall is in OZ
             for (Direction dir : findTrenchCellPath(1)) {
                 world.moveHero(blaster, dir);
             }
@@ -140,7 +140,10 @@ public class BlasterManager implements HeroManager {
             for (Direction dir : findTrenchCellPath(0)) {
                 world.moveHero(blaster, dir);
             }
-        }
+        }*/
+
+        for (Direction dir : findTrenchCellPath(state))
+            world.moveHero(blaster, dir);
 
     }
 
