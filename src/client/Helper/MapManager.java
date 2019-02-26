@@ -6,6 +6,7 @@ import client.model.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class MapManager {
@@ -13,49 +14,21 @@ public class MapManager {
     static int radius = 2;
 
     // TODO: 2019-02-25 fix this method so it finds all enemies and acts based on them or a prioritization of them.
-    // returns a Cell in manhattan range that you can hide from enemies (currently one enemy).
-        //finds all enemies that can see myHero.(currently only one enemyHero).
-        // if it can't find any, returns myHero's cell.
-    public static Cell findNearestHidingCell(Cell myHero, int radius, World world) {
-        List<Cell> cellsInRange = findAllCellsInManhattanRange(myHero, radius, world);
-        Hero oppHeroInVision = world.getOppHeroes()[0];
-        Cell hidingCell = myHero;
-
-        for(Hero enemyHero: world.getOppHeroes()) {
-            if(world.isInVision(enemyHero.getCurrentCell(), myHero)) {
-                oppHeroInVision = enemyHero;
-                break;
+    public static Cell findNearestHidingCell(Cell myHero, Cell oppHero, World world) {
+        List<Cell> allCells = new ArrayList<Cell>();
+        for(Cell[] mapCells: world.getMap().getCells()) {
+            for(Cell cell: mapCells) {
+                allCells.add(0, cell);
             }
         }
 
-        for(Cell cell: cellsInRange) {
-            if(!world.isInVision(oppHeroInVision.getCurrentCell(), cell)) {
-                hidingCell = cell;
-                break;
-            }
-        }
-
-        return hidingCell;
+        List<Cell> cellsNotInEnemyRange = allCells.parallelStream().filter(cell -> !world.isInVision(oppHero, cell)).collect(Collectors.toList());
+        return cellsNotInEnemyRange.parallelStream().reduce(Helper.getCellReduce(myHero)).get();
     }
 
-    //an overload of findNearestHidingCell(), myHero is a Hero instead of a cell.
-    public static Cell findNearestHidingCell(Hero myHero, int radius, World world) {
-        return findNearestHidingCell(myHero.getCurrentCell(), radius, world);
-    }
-
-    //an overload of findNearestHidingCell(), takes in one known enemy.
-    public static Cell findNearestHidingCell(Hero myHero, Hero enemyHero, int radius, World world) {
-        List<Cell> cellsInRange = findAllCellsInManhattanRange(myHero.getCurrentCell(), radius, world);
-        Cell hidingCell = myHero.getCurrentCell();
-
-        for(Cell cell: cellsInRange) {
-            if(!world.isInVision(enemyHero.getCurrentCell(), cell)) {
-                hidingCell = cell;
-                break;
-            }
-        }
-
-        return hidingCell;
+    //an overload of previous method so you could only send heroes instead of cells.
+    public static Cell findNearestHidingCell(Hero myHero, Hero oppHero, World world) {
+        return findNearestHidingCell(myHero.getCurrentCell(), oppHero.getCurrentCell(), world);
     }
 
     //finds all cells in a range from curCell. returns a sorted list of them(increasing order).
