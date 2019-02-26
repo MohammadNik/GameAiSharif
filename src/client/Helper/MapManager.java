@@ -5,6 +5,7 @@ import client.model.Hero;
 import client.model.World;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,14 +16,10 @@ public class MapManager {
 
     // TODO: 2019-02-25 fix this method so it finds all enemies and acts based on them or a prioritization of them.
     public static Cell findNearestHidingCell(Cell myHero, Cell oppHero, World world) {
-        List<Cell> allCells = new ArrayList<Cell>();
-        for(Cell[] mapCells: world.getMap().getCells()) {
-            for(Cell cell: mapCells) {
-                allCells.add(0, cell);
-            }
-        }
+        List<Cell> allCells = Arrays.stream(world.getMap().getCells()).flatMap(Arrays::stream).collect(Collectors.toList());
 
         List<Cell> cellsNotInEnemyRange = allCells.parallelStream().filter(cell -> !world.isInVision(oppHero, cell)).collect(Collectors.toList());
+
         return cellsNotInEnemyRange.parallelStream().reduce(Helper.getNearestCellReduce(myHero)).get();
     }
 
