@@ -41,7 +41,7 @@ public class HealerManager implements HeroManager {
         HealerManager.world = world; // WARNING: DON'T CHANGE THIS !!
         this.healerHero = healerHero;
 
-        if (isAllHpInRange(HP_H,HP_F)){
+        if (isAllHpInRange(HP_M,HP_F)){
 
 //            if (getEnemyInRange() == null && !healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
             if (!healerHero.getCurrentCell().isInObjectiveZone()) moveToObjectiveZone();
@@ -109,7 +109,7 @@ public class HealerManager implements HeroManager {
                 .map(Hero::getCurrentCell)
                 .reduce(Helper.getCellReduce(healerHero.getCurrentCell())).orElse(null);
 
-        if ( nearestEnemy == null) return;
+        if ( nearestEnemy == null || Helper.isInRangeOfCell1(healerHero.getCurrentCell(),nearestEnemy,RANGE)) return;
 
         Cell farestCellInRangeOfNearestEnemy = Helper.cellInRangeOfSpot(world,nearestEnemy,RANGE)
                 .stream()
@@ -125,9 +125,12 @@ public class HealerManager implements HeroManager {
     private void moveToLowestHpHero(){
          Cell cell =Helper.cellInRangeOfSpot(world,getCellOfLowestHpHero(),4)
                  .stream()
+                 .filter(cell1 -> world.getMyHero(cell1) == null)
                  .reduce(Helper.getCellReduce(healerHero.getCurrentCell())).orElse(null);
 
          moveHealerTo(cell);
+
+        System.out.println("Move to lowest hp hero");
 
     }
     // ~~
@@ -138,6 +141,8 @@ public class HealerManager implements HeroManager {
         }catch (NullPointerException ignored){}
 
         System.out.println("moveToNearestSafeCell");
+
+
     }
     // ~~
     private void moveToObjectiveZone(){
@@ -158,9 +163,8 @@ public class HealerManager implements HeroManager {
         return getLowestHpHero().getCurrentCell();
     }
 
-    // TODO: 2019-02-26 this method is static make it non-static if it ruin the code
-    public static Hero getLowestHpHero(){
-        return Arrays.stream(world.getMyHeroes()).sorted(Comparator.comparing(Hero::getCurrentHP)).findFirst().get();
+    public Hero getLowestHpHero(){
+        return Arrays.stream(world.getMyHeroes()).min(Comparator.comparing(Hero::getCurrentHP)).orElse(null);
     }
 
     private boolean isHealReady(){
