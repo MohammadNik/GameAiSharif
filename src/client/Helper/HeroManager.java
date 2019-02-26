@@ -11,4 +11,5 @@ public interface HeroManager {
 
     public void takeAction(World world, Hero currentHero);
 
+
 }

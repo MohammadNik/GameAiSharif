@@ -77,7 +77,7 @@ public class GuardianManager implements HeroManager {
 
         Cell nearestEnemyCell = enemies.parallelStream()
                 .map(Hero::getCurrentCell)
-                .reduce(Helper.getCellReduce(guardianHero.getCurrentCell())).orElse(null);
+                .reduce(Helper.getNearestCellReduce(guardianHero.getCurrentCell())).orElse(null);
 
         if (nearestEnemyCell == null || Helper.isInRangeOfCell1(guardianHero.getCurrentCell(),nearestEnemyCell,RANGE_ATTACK)) return;
 
@@ -85,7 +85,7 @@ public class GuardianManager implements HeroManager {
         Cell nearestCellToEnemy = Helper.cellInRangeOfSpot(world,nearestEnemyCell,RANGE_ATTACK)
                 .parallelStream()
                 .filter(cell -> world.getMyHero(cell) == null)
-                .reduce(Helper.getCellReduce(guardianHero.getCurrentCell())).orElse(null);
+                .reduce(Helper.getNearestCellReduce(guardianHero.getCurrentCell())).orElse(null);
 
         if (nearestCellToEnemy == null) return;
 
@@ -105,7 +105,7 @@ public class GuardianManager implements HeroManager {
         Cell target = Helper.cellInRangeOfSpot(world,lowestHpHero.getCurrentCell(),RANGE_FORTIFY)
                 .parallelStream()
                 .filter(cell -> world.getMyHero(cell) == null)
-                .reduce(Helper.getCellReduce(guardianHero.getCurrentCell()))
+                .reduce(Helper.getNearestCellReduce(guardianHero.getCurrentCell()))
                 .orElse(null);
 
         if (target == null) return;
